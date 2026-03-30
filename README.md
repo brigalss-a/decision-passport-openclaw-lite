@@ -9,6 +9,10 @@ Add a portable, append-only audit trail to every OpenClaw agent action — no da
 
 **TypeScript** · **OpenClaw compatible** · **Lite mode** · **No database** · **Offline verify** · **2 minute setup**
 
+<p align="center">
+  <img src="docs/screenshots/openclaw-lite-demo.svg" alt="OpenClaw Lite demo" width="680" />
+</p>
+
 ---
 
 ## Install & run in 2 minutes

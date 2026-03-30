@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="400" font-family="'Cascadia Code', 'Fira Code', 'Consolas', monospace">
+  <rect width="720" height="400" fill="#1e1e2e" rx="12"/>
+
+  <!-- Title bar -->
+  <rect x="0" y="0" width="720" height="36" fill="#181825" rx="12"/>
+  <rect x="0" y="18" width="720" height="18" fill="#181825"/>
+  <circle cx="20" cy="18" r="6" fill="#f38ba8"/>
+  <circle cx="40" cy="18" r="6" fill="#f9e2af"/>
+  <circle cx="60" cy="18" r="6" fill="#a6e3a1"/>
+  <text x="360" y="23" text-anchor="middle" fill="#6c7086" font-size="12">Terminal — pnpm demo</text>
+
+  <!-- Prompt -->
+  <text x="20" y="62" fill="#89b4fa" font-size="13">$</text>
+  <text x="36" y="62" fill="#cdd6f4" font-size="13">pnpm demo</text>
+
+  <!-- Output lines -->
+  <text x="20" y="90" fill="#6c7086" font-size="12">────────────────────────────────────────────────────────────</text>
+  <text x="20" y="110" fill="#cdd6f4" font-size="13"> OpenClaw Passport Lite — Email Demo Summary</text>
+  <text x="20" y="130" fill="#6c7086" font-size="12">────────────────────────────────────────────────────────────</text>
+
+  <text x="20" y="158" fill="#89b4fa" font-size="13">Session:</text>
+  <text x="110" y="158" fill="#cdd6f4" font-size="13">demo-chain-1774913106103</text>
+
+  <text x="20" y="182" fill="#89b4fa" font-size="13">Records:</text>
+  <text x="110" y="182" fill="#cdd6f4" font-size="13">3</text>
+
+  <!-- Record details -->
+  <text x="30" y="210" fill="#f9e2af" font-size="12">#0</text>
+  <text x="60" y="210" fill="#cdd6f4" font-size="12">AI_RECOMMENDATION</text>
+  <text x="260" y="210" fill="#6c7086" font-size="12">reasoning_summary</text>
+  <text x="440" y="210" fill="#a6e3a1" font-size="12">confidence: 0.88</text>
+
+  <text x="30" y="234" fill="#f9e2af" font-size="12">#1</text>
+  <text x="60" y="234" fill="#cdd6f4" font-size="12">EXECUTION_PENDING</text>
+  <text x="260" y="234" fill="#6c7086" font-size="12">tool_intent</text>
+  <text x="440" y="234" fill="#cba6f7" font-size="12">send_email</text>
+
+  <text x="30" y="258" fill="#f9e2af" font-size="12">#2</text>
+  <text x="60" y="258" fill="#cdd6f4" font-size="12">EXECUTION_SUCCEEDED</text>
+  <text x="260" y="258" fill="#6c7086" font-size="12">tool_result</text>
+  <text x="440" y="258" fill="#a6e3a1" font-size="12">delivered</text>
+
+  <!-- Bundle + verify -->
+  <text x="20" y="290" fill="#6c7086" font-size="12">────────────────────────────────────────────────────────────</text>
+  <text x="20" y="314" fill="#89b4fa" font-size="13">Bundle:</text>
+  <text x="110" y="314" fill="#a6e3a1" font-size="13">EXPORTED</text>
+
+  <text x="20" y="340" fill="#89b4fa" font-size="13">Verification:</text>
+  <text x="130" y="340" fill="#a6e3a1" font-size="13" font-weight="bold">[OK] PASS</text>
+
+  <text x="20" y="368" fill="#6c7086" font-size="12">────────────────────────────────────────────────────────────</text>
+</svg>

@@ -1,23 +1,19 @@
 # Decision Passport — OpenClaw Lite
 
-> **OpenClaw is powerful. Decision Passport makes it provable.**
-> Add a verifiable audit trail to every OpenClaw agent action — in under 5 minutes.
+OpenClaw is powerful. Decision Passport makes it verifiable.
 
-[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg)](https://www.typescriptlang.org/)
-[![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-yellow.svg)]()
-[![No Database](https://img.shields.io/badge/lite%20mode-no%20database-lightgrey.svg)]()
-[![Offline Verify](https://img.shields.io/badge/verify-offline-blueviolet.svg)]()
-[![2 min setup](https://img.shields.io/badge/setup-2%20minutes-brightgreen.svg)]()
+Add a portable, append-only audit trail to every OpenClaw agent action — no database, no API dependency, offline verification included.
+
+**Apache-2.0** · **TypeScript** · **OpenClaw compatible** · **Lite mode** · **No database** · **Offline verify** · **2 minute setup**
 
 ---
 
 ## Install & run in 2 minutes
 
 ```bash
-git clone https://github.com/brigalss-a/decision-passport-openclaw-lite
+git clone https://github.com/brigalss-a/decision-passport-openclaw-lite.git
 cd decision-passport-openclaw-lite
-pnpm install
+pnpm install --frozen-lockfile
 pnpm demo
 ```
 
@@ -49,16 +45,18 @@ pnpm demo
 
 ## What is this?
 
-This package is the **public Lite bridge** between [OpenClaw](https://openclaw.ai) and the Decision Passport trust layer.
+This package is the public Lite bridge between [OpenClaw](https://openclaw.ai) and the Decision Passport trust layer.
 
 Every time an OpenClaw agent:
-- Produces a reasoning summary
-- Intends to call a tool
-- Returns a tool result
+- produces a reasoning summary
+- intends to call a tool
+- returns a tool result
 
-...this library stamps a cryptographically-linked record into an append-only chain. When the session ends, you export a portable bundle that anyone can verify — offline, no API, no database.
+...this library stamps a cryptographically linked record into an append-only chain.
 
-**The result:** OpenClaw actions that are traceable, exportable, and independently provable.
+When the session ends, it exports a portable JSON bundle that anyone can verify offline — with no API and no database.
+
+The result: OpenClaw actions that are traceable, exportable, and independently verifiable.
 
 ---
 
@@ -295,45 +293,47 @@ Simulates: reasoning → read_file → write_file → bundle → PASS
 | PostgreSQL persistence | — | ✓ |
 | Redis locking | — | ✓ |
 | Live dashboard | — | ✓ |
-| Grok + other runtime bridges | — | ✓ |
+| Additional runtime bridges | — | ✓ |
 
 ---
 
-## Pricing
+## Commercial paths
 
-| Tier | Price | Includes |
-|---|---|---|
-| **Lite (this repo)** | Free | Full public protocol, examples, offline verify |
-| **Pro** | £49/month | Hosted verifier, bundle history, alerts |
-| **Business** | £299/month | API, multi-env, RBAC, analytics |
-| **Enterprise** | From £18,000/year | Claims, guard, outcomes, persistence, support |
-| **Sovereign** | From £60,000/year | Air-gapped, signed, regulated |
+Lite is free and open source.
 
-→ [Full pricing](docs/pricing.md)
+Hosted, business, enterprise, and sovereign deployment options are available on request.
+
+Contact: [contact@bespea.com](mailto:contact@bespea.com)
 
 ---
 
 ## Contributing
 
-Apache-2.0 — contributions welcome.
+Apache-2.0 — contributions are welcome.
+
+Fork the repository on GitHub, then run:
 
 ```bash
-git fork
+git clone https://github.com/YOUR_USERNAME/decision-passport-openclaw-lite.git
+cd decision-passport-openclaw-lite
 git checkout -b feat/my-improvement
-pnpm install && pnpm test
-# open PR
+pnpm install --frozen-lockfile
+pnpm test
 ```
+
+Then open a pull request.
 
 ---
 
 ## License
 
-[Apache-2.0](LICENSE)
+Apache-2.0
 
-Copyright © 2025–2026 Bespoke Champions League Ltd (London, UK)
-Company No. 16778449
+Copyright © 2025–2026 Bespoke Champions League Ltd
+London, United Kingdom
 
----
+Maintained by Grigore-Andrei Traistaru
+Founder, Bespea / Bespoke Champions League Ltd
 
-**Grigore-Andrei Traistaru** — Founder, Bespea / Bespoke Champions League Ltd
-contact@bespea.com · [bespea.com](https://bespea.com)
+contact@bespea.com
+https://bespea.com

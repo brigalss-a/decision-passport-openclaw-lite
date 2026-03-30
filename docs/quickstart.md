@@ -5,9 +5,9 @@ Add a verifiable audit trail to your OpenClaw agent in under 5 minutes.
 ## 1. Clone and install
 
 ```bash
-git clone https://github.com/bespoke-champions-league/decision-passport-openclaw-lite
+git clone https://github.com/brigalss-a/decision-passport-openclaw-lite.git
 cd decision-passport-openclaw-lite
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 ## 2. Run the email demo

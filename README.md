@@ -1,10 +1,13 @@
 # Decision Passport — OpenClaw Lite
 
+[![CI](https://github.com/brigalss-a/decision-passport-openclaw-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/brigalss-a/decision-passport-openclaw-lite/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 OpenClaw is powerful. Decision Passport makes it verifiable.
 
 Add a portable, append-only audit trail to every OpenClaw agent action — no database, no API dependency, offline verification included.
 
-**Apache-2.0** · **TypeScript** · **OpenClaw compatible** · **Lite mode** · **No database** · **Offline verify** · **2 minute setup**
+**TypeScript** · **OpenClaw compatible** · **Lite mode** · **No database** · **Offline verify** · **2 minute setup**
 
 ---
 

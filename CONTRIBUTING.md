@@ -11,7 +11,7 @@ Thank you for your interest in contributing to Decision Passport OpenClaw Lite.
 ## How to contribute
 1. Fork the repository
 2. `git checkout -b feat/my-improvement`
-3. `pnpm install && pnpm test`
+3. `pnpm install --frozen-lockfile && pnpm test`
 4. Open a Pull Request with a clear title and description
 
 ## Code standards

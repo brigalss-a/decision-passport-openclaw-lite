@@ -15,7 +15,7 @@
 ## Install & run in 2 minutes
 
 ```bash
-git clone https://github.com/bespoke-champions-league/decision-passport-openclaw-lite
+git clone https://github.com/brigalss-a/decision-passport-openclaw-lite
 cd decision-passport-openclaw-lite
 pnpm install
 pnpm demo

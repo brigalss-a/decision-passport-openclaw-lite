@@ -1,0 +1,13 @@
+{
+  "bundle_version": "1.4-openclaw-lite",
+  "exported_at_utc": "2026-01-01T00:00:00.000Z",
+  "summary": "Sample bundle",
+  "passport_records": [],
+  "manifest": {
+    "chain_id": "sample-chain",
+    "record_count": 0,
+    "first_record_id": "",
+    "last_record_id": "",
+    "chain_hash": ""
+  }
+}

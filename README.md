@@ -1,0 +1,339 @@
+# Decision Passport — OpenClaw Lite
+
+> **OpenClaw is powerful. Decision Passport makes it provable.**
+> Add a verifiable audit trail to every OpenClaw agent action — in under 5 minutes.
+
+[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg)](https://www.typescriptlang.org/)
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-yellow.svg)]()
+[![No Database](https://img.shields.io/badge/lite%20mode-no%20database-lightgrey.svg)]()
+[![Offline Verify](https://img.shields.io/badge/verify-offline-blueviolet.svg)]()
+[![2 min setup](https://img.shields.io/badge/setup-2%20minutes-brightgreen.svg)]()
+
+---
+
+## Install & run in 2 minutes
+
+```bash
+git clone https://github.com/bespoke-champions-league/decision-passport-openclaw-lite
+cd decision-passport-openclaw-lite
+pnpm install
+pnpm demo
+```
+
+**Expected output (JSON, abbreviated):**
+
+```json
+{
+  "result": { "success": true, "delivered_to": "client@example.com" },
+  "bundle": {
+    "bundle_version": "1.4-openclaw-lite",
+    "passport_records": [
+      { "sequence": 0, "action_type": "AI_RECOMMENDATION",    "actor_id": "openclaw-agent-01" },
+      { "sequence": 1, "action_type": "EXECUTION_PENDING",    "actor_id": "openclaw-agent-01" },
+      { "sequence": 2, "action_type": "EXECUTION_SUCCEEDED",  "actor_id": "openclaw-agent-01" }
+    ],
+    "manifest": { "record_count": 3, "chain_hash": "sha256:..." }
+  },
+  "verification": {
+    "status": "PASS",
+    "checks": [
+      { "name": "chain_integrity",     "passed": true },
+      { "name": "manifest_chain_hash", "passed": true }
+    ]
+  }
+}
+```
+
+---
+
+## What is this?
+
+This package is the **public Lite bridge** between [OpenClaw](https://openclaw.ai) and the Decision Passport trust layer.
+
+Every time an OpenClaw agent:
+- Produces a reasoning summary
+- Intends to call a tool
+- Returns a tool result
+
+...this library stamps a cryptographically-linked record into an append-only chain. When the session ends, you export a portable bundle that anyone can verify — offline, no API, no database.
+
+**The result:** OpenClaw actions that are traceable, exportable, and independently provable.
+
+---
+
+## Before / After
+
+**Without this library:**
+```
+OpenClaw agent → calls tools → returns results → nothing recorded
+→ Can you prove what the agent decided? No.
+→ Can you explain what tools ran and why? No.
+→ Can you give an auditor a bundle? No.
+```
+
+**With this library:**
+```
+OpenClaw agent → every reasoning + tool call stamped into chain
+→ Bundle exported in seconds
+→ Verifier: PASS ✓
+→ Full chain: reasoning → intent → result
+```
+
+---
+
+## Integration: 3 patterns
+
+### Pattern 1 — Wrapper (recommended)
+
+Wrap your OpenClaw agent with `OpenClawPassportWrapperLite`. Explicitly record each event.
+
+```typescript
+import { OpenClawPassportWrapperLite } from 'decision-passport-openclaw-lite';
+
+const passport = new OpenClawPassportWrapperLite({
+  chainId: `session-${Date.now()}`,
+  actorId: 'my-openclaw-agent',
+  purpose: 'CUSTOMER_EMAIL_RESPONSE',
+  model: 'claude-4'
+});
+
+// Before the agent acts — record the reasoning
+await passport.recordReasoningSummary(
+  'Customer inquiry about delayed order. Policy: respond within 24h.',
+  0.91
+);
+
+// Before a tool call — record the intent
+await passport.recordToolIntent('send_email', {
+  to: 'customer@example.com',
+  subject: 'Your order update'
+});
+
+// After the tool call — record the result
+await passport.recordToolResultSummary('send_email', {
+  success: true,
+  delivered_to: 'customer@example.com'
+});
+
+// Finalise and export
+const bundle = await passport.finalize('Session completed successfully');
+```
+
+---
+
+### Pattern 2 — Middleware (automatic intercept)
+
+Use `OpenClawPassportMiddlewareLite` to intercept tool calls automatically.
+
+```typescript
+import { OpenClawPassportWrapperLite, OpenClawPassportMiddlewareLite } from 'decision-passport-openclaw-lite';
+
+const wrapper = new OpenClawPassportWrapperLite({ chainId: 'chain-001', actorId: 'agent-01', purpose: 'DEMO' });
+const middleware = new OpenClawPassportMiddlewareLite(wrapper);
+
+// Before tool call
+const toolCall = await middleware.beforeToolCall({
+  tool: 'search_web',
+  payload: { query: 'latest AI research' }
+});
+
+// Run your actual tool...
+const result = await myTool(toolCall.payload);
+
+// After tool result
+await middleware.afterToolResult(toolCall, result);
+
+// Bundle and verify
+const bundle = await middleware.finalize('Search session complete');
+const verification = verifyLiteBundle(bundle);
+console.log(verification.status); // PASS
+```
+
+---
+
+### Pattern 3 — Minimal (just the chain)
+
+Use the chain primitives directly for custom integrations.
+
+```typescript
+import { createRecord, createManifest, verifyChain } from 'decision-passport-openclaw-lite';
+
+const records = [];
+let lastRecord = null;
+
+const r1 = createRecord({
+  chainId: 'my-chain',
+  lastRecord: null,
+  actorId: 'agent-01',
+  actorType: 'ai_agent',
+  actionType: 'AI_RECOMMENDATION',
+  payload: { summary: 'Proceeding with file operation', confidence: 0.88 }
+});
+records.push(r1);
+lastRecord = r1;
+
+// ... more records
+
+const verification = verifyChain(records);
+const manifest = createManifest(records);
+```
+
+---
+
+## API reference
+
+### `OpenClawPassportWrapperLite`
+
+```typescript
+new OpenClawPassportWrapperLite(config: {
+  chainId: string;      // Unique session identifier
+  actorId: string;      // Agent identifier
+  purpose: string;      // Human-readable session purpose
+  model?: string;       // Optional model name
+})
+
+.recordReasoningSummary(summary: string, confidence: number): Promise<PassportRecord>
+.recordToolIntent(tool: string, payload: Record<string, unknown>): Promise<PassportRecord>
+.recordToolResultSummary(tool: string, result: unknown): Promise<PassportRecord>
+.finalize(summary?: string): Promise<LiteBundle>
+```
+
+### `OpenClawPassportMiddlewareLite`
+
+```typescript
+new OpenClawPassportMiddlewareLite(wrapper: OpenClawPassportWrapperLite)
+
+.beforeToolCall(params: { tool: string; payload: Record<string, unknown> }): Promise<ToolCallContext>
+.afterToolResult(context: ToolCallContext, result: unknown): Promise<PassportRecord>
+.finalize(summary?: string): Promise<LiteBundle>
+```
+
+### `verifyLiteBundle`
+
+```typescript
+verifyLiteBundle(bundle: LiteBundle): { valid: boolean; status: 'PASS' | 'FAIL'; error?: string }
+```
+
+---
+
+## Bundle format
+
+Exported bundles are portable JSON:
+
+```json
+{
+  "bundle_version": "1.4-openclaw-lite",
+  "exported_at_utc": "2026-01-15T14:32:00.000Z",
+  "summary": "Email session completed",
+  "passport_records": [
+    {
+      "id": "uuid-...",
+      "chain_id": "session-1748000000000",
+      "sequence": 0,
+      "timestamp_utc": "2026-01-15T14:31:58.000Z",
+      "actor_id": "openclaw-agent-01",
+      "actor_type": "ai_agent",
+      "action_type": "AI_RECOMMENDATION",
+      "payload": { "summary": "...", "confidence": 0.91, "type": "reasoning_summary" },
+      "payload_hash": "sha256:...",
+      "prev_hash": "GENESIS_00000...",
+      "record_hash": "sha256:..."
+    }
+  ],
+  "manifest": {
+    "chain_id": "session-1748000000000",
+    "record_count": 3,
+    "first_record_id": "uuid-...",
+    "last_record_id": "uuid-...",
+    "chain_hash": "sha256:..."
+  }
+}
+```
+
+---
+
+## Examples
+
+Three ready-to-run demos included:
+
+### Email demo
+```bash
+pnpm tsx examples/email-with-passport-lite/index.ts
+```
+Simulates: reasoning → send_email intent → delivery result → bundle → PASS
+
+### Browser action demo
+```bash
+pnpm tsx examples/browser-with-passport-lite/index.ts
+```
+Simulates: reasoning → navigate_browser → content extraction → bundle → PASS
+
+### File operation demo
+```bash
+pnpm tsx examples/file-op-with-passport-lite/index.ts
+```
+Simulates: reasoning → read_file → write_file → bundle → PASS
+
+---
+
+## Lite vs Enterprise
+
+| Capability | Lite (this repo) | Enterprise (private) |
+|---|---|---|
+| Reasoning summary recording | ✓ | ✓ |
+| Tool intent recording | ✓ | ✓ |
+| Tool result recording | ✓ | ✓ |
+| Append-only chain | ✓ | ✓ |
+| Bundle export (JSON) | ✓ | ✓ |
+| Offline verifier | ✓ | ✓ |
+| No database required | ✓ | ✓ |
+| Execution claims (single-use auth) | — | ✓ |
+| Guard enforcement (blocking) | — | ✓ |
+| Replay protection | — | ✓ |
+| Outcome binding | — | ✓ |
+| PostgreSQL persistence | — | ✓ |
+| Redis locking | — | ✓ |
+| Live dashboard | — | ✓ |
+| Grok + other runtime bridges | — | ✓ |
+
+---
+
+## Pricing
+
+| Tier | Price | Includes |
+|---|---|---|
+| **Lite (this repo)** | Free | Full public protocol, examples, offline verify |
+| **Pro** | £49/month | Hosted verifier, bundle history, alerts |
+| **Business** | £299/month | API, multi-env, RBAC, analytics |
+| **Enterprise** | From £18,000/year | Claims, guard, outcomes, persistence, support |
+| **Sovereign** | From £60,000/year | Air-gapped, signed, regulated |
+
+→ [Full pricing](docs/pricing.md)
+
+---
+
+## Contributing
+
+Apache-2.0 — contributions welcome.
+
+```bash
+git fork
+git checkout -b feat/my-improvement
+pnpm install && pnpm test
+# open PR
+```
+
+---
+
+## License
+
+[Apache-2.0](LICENSE)
+
+Copyright © 2025–2026 Bespoke Champions League Ltd (London, UK)
+Company No. 16778449
+
+---
+
+**Grigore-Andrei Traistaru** — Founder, Bespea / Bespoke Champions League Ltd
+contact@bespea.com · [bespea.com](https://bespea.com)

@@ -1,3 +1,5 @@
+# Release Notes: v0.1.0
+
 ## Highlights
 
 - Full OpenClaw agent action recording: reasoning, tool intent, tool result

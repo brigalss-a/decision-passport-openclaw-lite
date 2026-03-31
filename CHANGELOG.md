@@ -1,5 +1,7 @@
 # Changelog
 
+<!-- markdownlint-disable MD024 -->
+
 All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
@@ -11,7 +13,17 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - **HTML verification report** (`renderLiteHtmlReport()`): self-contained HTML export for any `LiteBundle`. Includes dark theme, status card, checks table, and records table.
 - **Demo artifact output**: `pnpm demo` now writes `artifacts/passport-lite-report.html` and `artifacts/passport-lite-summary.json`.
 - **6 new tests** for HTML export (PASS/FAIL rendering, XSS escaping, summary handling, record table).
-- Test count: 17 → 23.
+- **Redaction utility** (`redactLiteBundle()`): three modes -- `none` (deep copy), `safe-demo` (recursive value replacement with `[REDACTED]`), `public-share` (payload and actor removal). Redacted bundles explicitly fail verification.
+- **15 new redaction tests** across all three modes plus nested payload handling.
+- **Redaction docs** (`docs/redaction-modes.md`): mode comparison tables, verification consequences, usage examples.
+- **Release workflow** (`.github/workflows/release.yml`): automated GitHub Release on `v*` tags with artifact collection and SHA-256 checksums.
+- **Checksum generation** (`scripts/generate-checksums.ts`): SHA-256 checksums for demo artifact files.
+- **Release verification docs** (`docs/release-verification.md`): step-by-step local verification of published releases.
+- Test count: 17 → 38.
+
+### Fixed
+
+- Markdown lint warnings across README, CONTRIBUTING, SECURITY, CHANGELOG, quickstart, enterprise-vs-lite, passport-skill, demo README, and RELEASE_NOTES files.
 
 ## [0.1.0] - 2025-06-28
 

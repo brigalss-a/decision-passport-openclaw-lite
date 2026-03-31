@@ -7,3 +7,4 @@ export * from "./SessionRecorderLite.js";
 export * from "./OpenClawPassportWrapperLite.js";
 export * from "./OpenClawPassportMiddlewareLite.js";
 export * from "./html-export.js";
+export * from "./redact-lite-bundle.js";

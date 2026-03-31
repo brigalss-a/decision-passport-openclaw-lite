@@ -41,4 +41,4 @@ For regulated, air-gapped environments:
 
 Hosted, enterprise, and sovereign deployment options are available on request.
 
-Contact: contact@bespea.com
+Contact: <contact@bespea.com>

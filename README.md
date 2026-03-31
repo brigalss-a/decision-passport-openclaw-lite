@@ -9,9 +9,11 @@ Add a portable, append-only audit trail to every OpenClaw agent action. No datab
 
 **TypeScript** · **OpenClaw compatible** · **Lite mode** · **No database** · **Offline verify** · **2 minute setup**
 
+<!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="docs/screenshots/openclaw-lite-demo.svg" alt="OpenClaw Lite demo" width="680" />
 </p>
+<!-- markdownlint-enable MD033 -->
 
 ---
 
@@ -55,6 +57,7 @@ pnpm demo
 This package is the public Lite bridge between [OpenClaw](https://openclaw.ai) and the Decision Passport trust layer.
 
 Every time an OpenClaw agent:
+
 - produces a reasoning summary
 - intends to call a tool
 - returns a tool result
@@ -70,7 +73,8 @@ OpenClaw actions become traceable, exportable, and independently verifiable.
 ## Before / After
 
 **Without this library:**
-```
+
+```text
 OpenClaw agent → calls tools → returns results → nothing recorded
 → Can you prove what the agent decided? No.
 → Can you explain what tools ran and why? No.
@@ -78,7 +82,8 @@ OpenClaw agent → calls tools → returns results → nothing recorded
 ```
 
 **With this library:**
-```
+
+```text
 OpenClaw agent → every reasoning + tool call stamped into chain
 → Bundle exported
 → Verifier: PASS ✓
@@ -290,26 +295,56 @@ The demo writes reports automatically to `artifacts/passport-lite-report.html`.
 
 ---
 
+## Redaction
+
+Produce a redacted copy of any bundle for sharing, demos, or public display:
+
+```typescript
+import { redactLiteBundle } from 'decision-passport-openclaw-lite';
+
+const result = redactLiteBundle(bundle, { mode: 'safe-demo' });
+console.log(result.bundle);     // payload values replaced with "[REDACTED]"
+console.log(result.verifiable); // false
+```
+
+Three modes: `none` (unchanged copy), `safe-demo` (payload values redacted, structure preserved), `public-share` (payload and actor IDs removed).
+
+Redacted bundles will fail verification because payload hashes no longer match. Verify the original bundle first, then redact for sharing.
+
+Full details: [docs/redaction-modes.md](docs/redaction-modes.md)
+
+### Release verification
+
+- [Release verification](docs/release-verification.md): how to verify a published release locally
+
+---
+
 ## Examples
 
 Three ready-to-run demos included:
 
 ### Email demo
+
 ```bash
 pnpm tsx examples/email-with-passport-lite/index.ts
 ```
+
 Simulates: reasoning → send_email intent → delivery result → bundle → PASS → HTML report in `artifacts/`
 
 ### Browser action demo
+
 ```bash
 pnpm tsx examples/browser-with-passport-lite/index.ts
 ```
+
 Simulates: reasoning → navigate_browser → content extraction → bundle → PASS
 
 ### File operation demo
+
 ```bash
 pnpm tsx examples/file-op-with-passport-lite/index.ts
 ```
+
 Simulates: reasoning → read_file → write_file → bundle → PASS
 
 ---
@@ -317,7 +352,7 @@ Simulates: reasoning → read_file → write_file → bundle → PASS
 ## Lite vs Enterprise
 
 | Capability | Lite (this repo) | Enterprise (private) |
-|---|---|---|
+| --- | --- | --- |
 | Reasoning summary recording | ✓ | ✓ |
 | Tool intent recording | ✓ | ✓ |
 | Tool result recording | ✓ | ✓ |
@@ -375,5 +410,5 @@ London, United Kingdom
 Maintained by Grigore-Andrei Traistaru
 Founder, Bespea / Bespoke Champions League Ltd
 
-contact@bespea.com
-https://bespea.com
+<contact@bespea.com>
+<https://bespea.com>

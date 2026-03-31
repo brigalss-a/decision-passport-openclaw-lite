@@ -39,5 +39,6 @@ console.log(result.status); // PASS
 ```
 
 ## 4. Next steps
+
 - Full API reference → [README](../README.md)
-- Enterprise features → contact@bespea.com
+- Enterprise features → <contact@bespea.com>

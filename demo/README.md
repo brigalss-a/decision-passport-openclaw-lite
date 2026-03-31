@@ -18,7 +18,7 @@ The demo runs the **email-with-passport-lite** example:
 
 ## Sample Output
 
-```
+```text
 Session:        demo-chain-1749...
 Records:        3
 Bundle:         EXPORTED
@@ -26,6 +26,7 @@ Verification:   PASS ✓
 ```
 
 The full JSON bundle is also printed, containing:
+
 - `passport_records`: the immutable chain of 3 records
 - `manifest`: chain summary with record count and chain hash
 - `verification`: PASS/FAIL status with individual check results

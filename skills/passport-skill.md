@@ -3,12 +3,14 @@
 **Description**: Add verifiable audit trails to OpenClaw agents.
 
 ## What it does
+
 - records reasoning summaries
 - records tool intent
 - records result summaries
 - exports a basic passport bundle
 
 ## What it does NOT do
+
 - no private execution guard
 - no claims engine
 - no replay protection

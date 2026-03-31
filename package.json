@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "demo": "tsx scripts/run-demo.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "checksums": "tsx scripts/generate-checksums.ts"
   },
   "dependencies": {},
   "devDependencies": {

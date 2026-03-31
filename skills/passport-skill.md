@@ -15,6 +15,10 @@
 - no enterprise control plane
 
 ## Install
+
 ```bash
-clawhub install decision-passport-lite
+git clone https://github.com/brigalss-a/decision-passport-openclaw-lite.git
+cd decision-passport-openclaw-lite
+pnpm install --frozen-lockfile
+pnpm demo
 ```

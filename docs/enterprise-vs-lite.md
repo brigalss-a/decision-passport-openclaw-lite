@@ -13,7 +13,7 @@ Everything you need to add trust to OpenClaw sessions:
 
 **No database. No API. No cloud.**
 
-## Enterprise (private) — From £18,000/year
+## Enterprise (private)
 
 The control layer that governs execution:
 
@@ -24,11 +24,11 @@ The control layer that governs execution:
 - PostgreSQL persistence
 - Redis distributed locking
 - Advanced Merkle bundle
-- Grok + custom runtime bridges
+- Additional runtime bridges
 - Dashboard, live backend
 - SSO, RBAC, tenant isolation
 
-## Sovereign — From £60,000/year
+## Sovereign
 
 For regulated, air-gapped environments:
 
@@ -38,5 +38,7 @@ For regulated, air-gapped environments:
 - Offline verification packs
 
 ---
+
+Hosted, enterprise, and sovereign deployment options are available on request.
 
 Contact: contact@bespea.com

@@ -1,6 +1,6 @@
 # Quickstart — Decision Passport OpenClaw Lite
 
-Add a verifiable audit trail to your OpenClaw agent in under 5 minutes.
+Add a verifiable audit trail to your OpenClaw agent in minutes.
 
 ## 1. Clone and install
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { verifyLiteBundle } from "../src/bundle.js";
 import { SessionRecorderLite } from "../src/SessionRecorderLite.js";
-import type { LiteBundle } from "../src/types.js";
+import type { LiteBundle, PassportRecord } from "../src/types.js";
 
 async function buildValidBundle(): Promise<LiteBundle> {
   const recorder = new SessionRecorderLite({
@@ -15,6 +15,17 @@ async function buildValidBundle(): Promise<LiteBundle> {
   return recorder.finalize("test run");
 }
 
+// JSON round-trip strips readonly — intentional tamper helper for tests only
+function cloneForTamper(bundle: LiteBundle): {
+  bundle_version: "1.4-openclaw-lite";
+  exported_at_utc: string;
+  summary?: string;
+  passport_records: PassportRecord[];
+  manifest: { chain_id: string; record_count: number; first_record_id: string; last_record_id: string; chain_hash: string };
+} {
+  return JSON.parse(JSON.stringify(bundle));
+}
+
 describe("verifyLiteBundle", () => {
   it("returns PASS for a valid bundle", async () => {
     const bundle = await buildValidBundle();
@@ -26,23 +37,25 @@ describe("verifyLiteBundle", () => {
   });
 
   it("returns FAIL when chain integrity is broken", async () => {
-    const bundle = await buildValidBundle();
-    bundle.passport_records[1] = {
-      ...bundle.passport_records[1],
+    const base = await buildValidBundle();
+    const tampered = cloneForTamper(base);
+    tampered.passport_records[1] = {
+      ...tampered.passport_records[1],
       payload: { tampered: true }
     };
 
-    const result = verifyLiteBundle(bundle);
+    const result = verifyLiteBundle(tampered as LiteBundle);
     expect(result.status).toBe("FAIL");
     expect(result.checks.find((c: { name: string }) => c.name === "chain_integrity")?.passed).toBe(false);
   });
 
   it("returns FAIL when manifest chain_hash mismatches", async () => {
-    const bundle = await buildValidBundle();
-    bundle.manifest = { ...bundle.manifest, chain_hash: "0".repeat(64) };
+    const base = await buildValidBundle();
+    const tampered: LiteBundle = { ...base, manifest: { ...base.manifest, chain_hash: "0".repeat(64) } };
 
-    const result = verifyLiteBundle(bundle);
+    const result = verifyLiteBundle(tampered);
     expect(result.status).toBe("FAIL");
     expect(result.checks.find((c: { name: string }) => c.name === "manifest_chain_hash")?.passed).toBe(false);
   });
 });
+

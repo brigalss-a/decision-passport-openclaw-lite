@@ -54,11 +54,12 @@ export function redactLiteBundle(
   bundle: LiteBundle,
   options: RedactOptions
 ): RedactedBundleResult {
-  const copy: LiteBundle = JSON.parse(JSON.stringify(bundle));
+  // JSON round-trip provides a deep copy of the original
+  const raw: LiteBundle = JSON.parse(JSON.stringify(bundle));
 
   if (options.mode === "none") {
     return {
-      bundle: copy,
+      bundle: raw,
       mode: "none",
       verifiable: true,
       verificationNote:
@@ -67,12 +68,13 @@ export function redactLiteBundle(
   }
 
   if (options.mode === "safe-demo") {
-    copy.passport_records = copy.passport_records.map(redactRecordSafeDemo);
-    if (copy.summary) {
-      copy.summary = REDACTED;
-    }
+    const redacted: LiteBundle = {
+      ...raw,
+      passport_records: raw.passport_records.map(redactRecordSafeDemo),
+      ...(raw.summary !== undefined ? { summary: REDACTED } : {}),
+    };
     return {
-      bundle: copy,
+      bundle: redacted,
       mode: "safe-demo",
       verifiable: false,
       verificationNote:
@@ -84,12 +86,13 @@ export function redactLiteBundle(
   }
 
   // public-share
-  copy.passport_records = copy.passport_records.map(redactRecordPublicShare);
-  if (copy.summary) {
-    copy.summary = REDACTED;
-  }
+  const redacted: LiteBundle = {
+    ...raw,
+    passport_records: raw.passport_records.map(redactRecordPublicShare),
+    ...(raw.summary !== undefined ? { summary: REDACTED } : {}),
+  };
   return {
-    bundle: copy,
+    bundle: redacted,
     mode: "public-share",
     verifiable: false,
     verificationNote:

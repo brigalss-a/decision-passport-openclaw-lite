@@ -313,6 +313,20 @@ Redacted bundles will fail verification because payload hashes no longer match. 
 
 Full details: [docs/redaction-modes.md](docs/redaction-modes.md)
 
+---
+
+## Append-only guarantees
+
+This library implements append-only at the **protocol and verification level**.
+No supported API modifies prior records. `SessionRecorderLite.record()` only appends.
+`getRecords()` returns a copy. `finalize()` returns a snapshot. Any mutation to a
+finalized bundle is detected by `verifyLiteBundle()`.
+
+This is not storage-level immutability. Bundle files on disk can be overwritten.
+For storage guarantees, layer this library on top of append-only object storage.
+
+Full details: [docs/append-only-guarantees.md](docs/append-only-guarantees.md)
+
 ### Release verification
 
 - [Release verification](docs/release-verification.md): how to verify a published release locally

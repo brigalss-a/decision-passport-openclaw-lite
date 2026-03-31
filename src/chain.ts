@@ -38,7 +38,7 @@ export function createRecord(params: {
   };
 }
 
-export function createManifest(records: PassportRecord[]): ChainManifest {
+export function createManifest(records: readonly PassportRecord[]): ChainManifest {
   if (records.length === 0) {
     return {
       chain_id: "empty-chain",
@@ -58,7 +58,7 @@ export function createManifest(records: PassportRecord[]): ChainManifest {
   };
 }
 
-export function verifyChain(records: PassportRecord[]): { valid: boolean; error?: string } {
+export function verifyChain(records: readonly PassportRecord[]): { valid: boolean; error?: string } {
   for (let i = 0; i < records.length; i++) {
     const record = records[i];
     const expectedSequence = i;

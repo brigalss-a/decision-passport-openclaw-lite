@@ -45,12 +45,12 @@ export class SessionRecorderLite {
       bundle_version: "1.4-openclaw-lite",
       exported_at_utc: new Date().toISOString(),
       summary,
-      passport_records: this.records,
+      passport_records: [...this.records],
       manifest: createManifest(this.records)
     };
   }
 
-  getRecords() {
-    return this.records;
+  getRecords(): readonly PassportRecord[] {
+    return [...this.records];
   }
 }

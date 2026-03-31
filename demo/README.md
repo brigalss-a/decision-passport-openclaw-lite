@@ -26,9 +26,9 @@ Verification:   PASS ✓
 ```
 
 The full JSON bundle is also printed, containing:
-- `passport_records` — the immutable chain of 3 records
-- `manifest` — chain summary with record count and chain hash
-- `verification` — PASS/FAIL status with individual check results
+- `passport_records`: the immutable chain of 3 records
+- `manifest`: chain summary with record count and chain hash
+- `verification`: PASS/FAIL status with individual check results
 
 ## Sample Bundle
 

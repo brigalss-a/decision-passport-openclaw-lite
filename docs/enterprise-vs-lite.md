@@ -1,6 +1,6 @@
-# Lite vs Enterprise — Decision Passport
+# Lite vs Enterprise: Decision Passport
 
-## Lite (this repo) — Free
+## Lite (this repo), Free
 
 Everything you need to add trust to OpenClaw sessions:
 
@@ -11,7 +11,7 @@ Everything you need to add trust to OpenClaw sessions:
 - Bundle export (JSON)
 - Offline verifier
 
-**No database. No API. No cloud.**
+**No database, API, or cloud dependency required.**
 
 ## Enterprise (private)
 

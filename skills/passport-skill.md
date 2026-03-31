@@ -1,6 +1,6 @@
 # Decision Passport Lite for OpenClaw
 
-**Description**: Add verifiable audit trails to OpenClaw in minutes.
+**Description**: Add verifiable audit trails to OpenClaw agents.
 
 ## What it does
 - records reasoning summaries

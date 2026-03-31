@@ -1,11 +1,11 @@
-# Decision Passport — OpenClaw Lite
+# Decision Passport: OpenClaw Lite
 
 [![CI](https://github.com/brigalss-a/decision-passport-openclaw-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/brigalss-a/decision-passport-openclaw-lite/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-OpenClaw is powerful. Decision Passport makes it verifiable.
+Decision Passport adds verifiable audit trails to OpenClaw.
 
-Add a portable, append-only audit trail to every OpenClaw agent action — no database, no API dependency, offline verification included.
+Add a portable, append-only audit trail to every OpenClaw agent action. No database, no API dependency, offline verification included.
 
 **TypeScript** · **OpenClaw compatible** · **Lite mode** · **No database** · **Offline verify** · **2 minute setup**
 
@@ -61,9 +61,9 @@ Every time an OpenClaw agent:
 
 ...this library stamps a cryptographically linked record into an append-only chain.
 
-When the session ends, it exports a portable JSON bundle that anyone can verify offline — with no API and no database.
+When the session ends, it exports a portable JSON bundle that anyone can verify offline, with no API and no database.
 
-The result: OpenClaw actions that are traceable, exportable, and independently verifiable.
+OpenClaw actions become traceable, exportable, and independently verifiable.
 
 ---
 
@@ -80,7 +80,7 @@ OpenClaw agent → calls tools → returns results → nothing recorded
 **With this library:**
 ```
 OpenClaw agent → every reasoning + tool call stamped into chain
-→ Bundle exported in seconds
+→ Bundle exported
 → Verifier: PASS ✓
 → Full chain: reasoning → intent → result
 ```
@@ -89,7 +89,7 @@ OpenClaw agent → every reasoning + tool call stamped into chain
 
 ## Integration: 3 patterns
 
-### Pattern 1 — Wrapper (recommended)
+### Pattern 1: Wrapper (recommended)
 
 Wrap your OpenClaw agent with `OpenClawPassportWrapperLite`. Explicitly record each event.
 
@@ -103,19 +103,19 @@ const passport = new OpenClawPassportWrapperLite({
   model: 'claude-4'
 });
 
-// Before the agent acts — record the reasoning
+// Before the agent acts, record the reasoning
 await passport.recordReasoningSummary(
   'Customer inquiry about delayed order. Policy: respond within 24h.',
   0.91
 );
 
-// Before a tool call — record the intent
+// Before a tool call, record the intent
 await passport.recordToolIntent('send_email', {
   to: 'customer@example.com',
   subject: 'Your order update'
 });
 
-// After the tool call — record the result
+// After the tool call, record the result
 await passport.recordToolResultSummary('send_email', {
   success: true,
   delivered_to: 'customer@example.com'
@@ -127,7 +127,7 @@ const bundle = await passport.finalize('Session completed successfully');
 
 ---
 
-### Pattern 2 — Middleware (automatic intercept)
+### Pattern 2: Middleware (automatic intercept)
 
 Use `OpenClawPassportMiddlewareLite` to intercept tool calls automatically.
 
@@ -157,7 +157,7 @@ console.log(verification.status); // PASS
 
 ---
 
-### Pattern 3 — Minimal (just the chain)
+### Pattern 3: Minimal (just the chain)
 
 Use the chain primitives directly for custom integrations.
 
@@ -220,6 +220,16 @@ new OpenClawPassportMiddlewareLite(wrapper: OpenClawPassportWrapperLite)
 verifyLiteBundle(bundle: LiteBundle): { valid: boolean; status: 'PASS' | 'FAIL'; error?: string }
 ```
 
+### `renderLiteHtmlReport`
+
+```typescript
+renderLiteHtmlReport(data: {
+  bundle: LiteBundle;
+  verification: { status: string; checks: { name: string; passed: boolean; message?: string }[] };
+  generatedAt: string;
+}): string   // self-contained HTML document
+```
+
 ---
 
 ## Bundle format
@@ -258,6 +268,28 @@ Exported bundles are portable JSON:
 
 ---
 
+## HTML report export
+
+Generate a self-contained HTML verification report from any bundle:
+
+```typescript
+import { verifyLiteBundle, renderLiteHtmlReport } from 'decision-passport-openclaw-lite';
+
+const verification = verifyLiteBundle(bundle);
+const html = renderLiteHtmlReport({
+  bundle,
+  verification,
+  generatedAt: new Date().toISOString(),
+});
+
+// Write to file or serve directly. No external dependencies.
+fs.writeFileSync('report.html', html);
+```
+
+The demo writes reports automatically to `artifacts/passport-lite-report.html`.
+
+---
+
 ## Examples
 
 Three ready-to-run demos included:
@@ -266,7 +298,7 @@ Three ready-to-run demos included:
 ```bash
 pnpm tsx examples/email-with-passport-lite/index.ts
 ```
-Simulates: reasoning → send_email intent → delivery result → bundle → PASS
+Simulates: reasoning → send_email intent → delivery result → bundle → PASS → HTML report in `artifacts/`
 
 ### Browser action demo
 ```bash
@@ -293,6 +325,7 @@ Simulates: reasoning → read_file → write_file → bundle → PASS
 | Bundle export (JSON) | ✓ | ✓ |
 | Offline verifier | ✓ | ✓ |
 | No database required | ✓ | ✓ |
+| HTML verification report | ✓ | ✓ |
 | Execution claims (single-use auth) | — | ✓ |
 | Guard enforcement (blocking) | — | ✓ |
 | Replay protection | — | ✓ |
@@ -316,7 +349,7 @@ Contact: [contact@bespea.com](mailto:contact@bespea.com)
 
 ## Contributing
 
-Apache-2.0 — contributions are welcome.
+Apache-2.0. Contributions are welcome.
 
 Fork the repository on GitHub, then run:
 
@@ -336,7 +369,7 @@ Then open a pull request.
 
 Apache-2.0
 
-Copyright © 2025–2026 Bespoke Champions League Ltd
+Copyright © 2025-2026 Bespoke Champions League Ltd
 London, United Kingdom
 
 Maintained by Grigore-Andrei Traistaru

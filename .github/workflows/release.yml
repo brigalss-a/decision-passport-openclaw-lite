@@ -42,6 +42,15 @@ jobs:
           if [ -f artifacts/passport-lite-summary.json ]; then
             cp artifacts/passport-lite-summary.json release-artifacts/
           fi
+          if [ -f artifacts/passport-lite-report.safe-demo.html ]; then
+            cp artifacts/passport-lite-report.safe-demo.html release-artifacts/
+          fi
+          if [ -f artifacts/passport-lite-summary.safe-demo.json ]; then
+            cp artifacts/passport-lite-summary.safe-demo.json release-artifacts/
+          fi
+          if [ -f artifacts/passport-lite-summary.public-share.json ]; then
+            cp artifacts/passport-lite-summary.public-share.json release-artifacts/
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

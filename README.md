@@ -312,6 +312,7 @@ Three modes: `none` (unchanged copy), `safe-demo` (payload values redacted, stru
 Redacted bundles will fail verification because payload hashes no longer match. Verify the original bundle first, then redact for sharing.
 
 Full details: [docs/redaction-modes.md](docs/redaction-modes.md)
+See also: [docs/public-share-workflow.md](docs/public-share-workflow.md) — when to use original vs safe-demo vs public-share artifacts, and what to say when sharing.
 
 ---
 

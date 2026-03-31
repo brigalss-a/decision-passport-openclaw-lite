@@ -5,6 +5,7 @@ import { OpenClawPassportWrapperLite } from "../../src/OpenClawPassportWrapperLi
 import { OpenClawPassportMiddlewareLite } from "../../src/OpenClawPassportMiddlewareLite.js";
 import { verifyLiteBundle } from "../../src/bundle.js";
 import { renderLiteHtmlReport } from "../../src/html-export.js";
+import { redactLiteBundle } from "../../src/redact-lite-bundle.js";
 import { TerminalFormatter, printBlock } from "../../scripts/lib/terminal.js";
 
 const term = new TerminalFormatter();
@@ -63,6 +64,33 @@ async function main() {
   };
   writeFileSync(join(artifactsDir, "passport-lite-summary.json"), JSON.stringify(summaryJson, null, 2));
 
+  // -- Redacted share artifacts --
+  // safe-demo: preserves structure, redacts payload values.
+  // Verification will FAIL on redacted bundles — this is expected and documented.
+  const safeDemoResult = redactLiteBundle(bundle, { mode: "safe-demo" });
+  const safeDemoVerification = verifyLiteBundle(safeDemoResult.bundle);
+  const safeDemoHtml = renderLiteHtmlReport({ bundle: safeDemoResult.bundle, verification: safeDemoVerification, generatedAt });
+  writeFileSync(join(artifactsDir, "passport-lite-report.safe-demo.html"), safeDemoHtml);
+  writeFileSync(join(artifactsDir, "passport-lite-summary.safe-demo.json"), JSON.stringify({
+    generatedAt,
+    redactionMode: "safe-demo",
+    verifiable: safeDemoResult.verifiable,
+    verificationNote: safeDemoResult.verificationNote,
+    records: safeDemoResult.bundle.passport_records.length,
+    chainId: safeDemoResult.bundle.manifest.chain_id,
+  }, null, 2));
+
+  // public-share: removes all payload content and actor IDs.
+  const publicShareResult = redactLiteBundle(bundle, { mode: "public-share" });
+  writeFileSync(join(artifactsDir, "passport-lite-summary.public-share.json"), JSON.stringify({
+    generatedAt,
+    redactionMode: "public-share",
+    verifiable: publicShareResult.verifiable,
+    verificationNote: publicShareResult.verificationNote,
+    records: publicShareResult.bundle.passport_records.length,
+    chainId: publicShareResult.bundle.manifest.chain_id,
+  }, null, 2));
+
   printBlock("");
   printBlock(term.heading(" OpenClaw Passport Lite — Email Demo Summary"));
   printBlock(
@@ -73,6 +101,9 @@ async function main() {
       term.kv("Verification", verification.status === "PASS"
         ? term.status("check", "PASS")
         : term.status("cross", "FAIL")),
+      term.kv("Artifacts", "passport-lite-report.html, passport-lite-summary.json"),
+      term.kv("Redacted (safe-demo)", "passport-lite-report.safe-demo.html, passport-lite-summary.safe-demo.json"),
+      term.kv("Redacted (public-share)", "passport-lite-summary.public-share.json"),
     ]),
   );
   printBlock(term.rule("heavyLine"));

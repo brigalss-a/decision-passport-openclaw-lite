@@ -6,7 +6,9 @@
 - Append-only chain with offline verification
 - Three integration patterns: Wrapper, Middleware, Minimal
 - Three ready-to-run example demos (email, browser, file-op)
-- 17 tests, all passing
+- HTML verification report export
+- Redaction support for sharing workflows (`none`, `safe-demo`, `public-share`)
+- Current local validation on 2026-04-05: 49 tests passing
 - Green GitHub Actions CI
 - Fresh-clone validated on Windows and GitHub Actions (Ubuntu)
 
@@ -16,6 +18,8 @@
 - `OpenClawPassportMiddlewareLite`: automatic tool call intercept
 - `SessionRecorderLite`: low-level chain recorder
 - `verifyLiteBundle()`: offline bundle verification
+- `renderLiteHtmlReport()`: self-contained HTML verification report
+- `redactLiteBundle()`: redaction helper for share-safe artifacts
 - Chain primitives (`createRecord`, `createManifest`, `verifyChain`)
 - Three example integrations (email, browser action, file operation)
 - Runnable demo (`pnpm demo`)
@@ -33,7 +37,7 @@ pnpm demo
 ## Known limits
 
 - Public preview. API surface may change before 1.0
-- No HTML report export yet (coming in next release)
 - No browser verifier in this repo (see `decision-passport-core`)
 - No enterprise features (claims, guard, outcomes). Those live in the private repo.
 - No npm publish yet
+- This repo provides proof artifacts, not runtime enforcement

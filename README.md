@@ -17,7 +17,42 @@ Add a portable, append-only audit trail to every OpenClaw agent action. No datab
 
 ---
 
-## Install & run in 2 minutes
+## Trust panel
+
+| Signal | Current status |
+| --- | --- |
+| Status | Public preview |
+| API stability | Pre-1.0, changes possible |
+| Verification scope | Hash-chain integrity plus manifest chain hash checks |
+| Security disclosure | See `SECURITY.md`, report privately via email |
+| Recommended usage | Practical OpenClaw proof wrapper for material transitions |
+| Not yet included | Runtime enforcement, enterprise control-plane, claim tokens |
+
+## What this proves
+
+1. Reasoning summaries, tool intents, and tool result summaries are chained into an append-only proof artifact.
+2. Tampering with payloads or chain links is detected by offline verification.
+3. Artifacts can be exported and verified without database dependencies.
+
+## What this does not prove
+
+1. Runtime enforcement, pre-execution blocking, or authorization claims.
+2. Full forensic capture of every intermediate token or hidden model state.
+3. Storage-level immutability by itself.
+
+## Why this is better than raw prompt logs alone
+
+Raw logs can be edited and are often too noisy for trust decisions. This repo captures structured, high-value transitions, then binds them with canonical hashing and chain links so integrity checks are explicit and repeatable.
+
+## When checkpoint-based capture matters
+
+Checkpoint-oriented capture is useful when reviewers need evidence of meaningful transitions, such as intent, approval, and result, without recording every low-value event.
+
+## When you need stronger infrastructure
+
+Use stronger infrastructure when you need runtime guard enforcement, replay protection, tenant controls, signed bundles, or compliance-heavy deployment controls.
+
+## Install and run in 2 minutes
 
 ```bash
 git clone https://github.com/brigalss-a/decision-passport-openclaw-lite.git
@@ -50,6 +85,8 @@ pnpm demo
 }
 ```
 
+Current local run on 2026-04-05: 49 tests passing (`pnpm test`).
+
 ---
 
 ## What is this?
@@ -68,6 +105,8 @@ When the session ends, it exports a portable JSON bundle that anyone can verify 
 
 OpenClaw actions become traceable, exportable, and independently verifiable.
 
+This repository is a practical proof wrapper, not a runtime enforcement system and not an enterprise control-plane.
+
 ---
 
 ## Before / After
@@ -75,19 +114,16 @@ OpenClaw actions become traceable, exportable, and independently verifiable.
 **Without this library:**
 
 ```text
-OpenClaw agent → calls tools → returns results → nothing recorded
-→ Can you prove what the agent decided? No.
-→ Can you explain what tools ran and why? No.
-→ Can you give an auditor a bundle? No.
+OpenClaw agent runs and tool calls complete, but no verifiable proof artifact is exported.
+Hard to validate what happened after the fact.
 ```
 
 **With this library:**
 
 ```text
-OpenClaw agent → every reasoning + tool call stamped into chain
-→ Bundle exported
-→ Verifier: PASS ✓
-→ Full chain: reasoning → intent → result
+OpenClaw records structured checkpoints for reasoning summary, tool intent, and tool result.
+Bundle exported and verified offline.
+Reviewers get a practical integrity-checked action trail.
 ```
 
 ---
@@ -312,7 +348,7 @@ Three modes: `none` (unchanged copy), `safe-demo` (payload values redacted, stru
 Redacted bundles will fail verification because payload hashes no longer match. Verify the original bundle first, then redact for sharing.
 
 Full details: [docs/redaction-modes.md](docs/redaction-modes.md)
-See also: [docs/public-share-workflow.md](docs/public-share-workflow.md) — when to use original vs safe-demo vs public-share artifacts, and what to say when sharing.
+See also: [docs/public-share-workflow.md](docs/public-share-workflow.md), for when to use original vs safe-demo vs public-share artifacts, and what to say when sharing.
 
 ---
 
@@ -376,14 +412,14 @@ Simulates: reasoning → read_file → write_file → bundle → PASS
 | Offline verifier | ✓ | ✓ |
 | No database required | ✓ | ✓ |
 | HTML verification report | ✓ | ✓ |
-| Execution claims (single-use auth) | — | ✓ |
-| Guard enforcement (blocking) | — | ✓ |
-| Replay protection | — | ✓ |
-| Outcome binding | — | ✓ |
-| PostgreSQL persistence | — | ✓ |
-| Redis locking | — | ✓ |
-| Live dashboard | — | ✓ |
-| Additional runtime bridges | — | ✓ |
+| Execution claims (single-use auth) | N/A | ✓ |
+| Guard enforcement (blocking) | N/A | ✓ |
+| Replay protection | N/A | ✓ |
+| Outcome binding | N/A | ✓ |
+| PostgreSQL persistence | N/A | ✓ |
+| Redis locking | N/A | ✓ |
+| Live dashboard | N/A | ✓ |
+| Additional runtime bridges | N/A | ✓ |
 
 ---
 

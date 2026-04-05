@@ -19,7 +19,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - **Release workflow** (`.github/workflows/release.yml`): automated GitHub Release on `v*` tags with artifact collection and SHA-256 checksums.
 - **Checksum generation** (`scripts/generate-checksums.ts`): SHA-256 checksums for demo artifact files.
 - **Release verification docs** (`docs/release-verification.md`): step-by-step local verification of published releases.
-- Test count: 17 → 38.
+- Test count at time of update: 49 passing in latest local validation (2026-04-05).
 
 ### Fixed
 

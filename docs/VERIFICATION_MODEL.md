@@ -25,14 +25,31 @@
 Current output contains:
 
 1. `status`: `PASS` or `FAIL`.
+2. `summary`: human-readable verification interpretation.
+3. `reasonCodes`: stable machine-readable reason taxonomy.
 2. `checks`: structured check rows with `name`, `passed`, and optional `message`.
+4. `nextSteps`: reviewer guidance for follow-up inspection.
+5. Optional `redactionAssessment` when redaction markers are detected.
+
+### Stable reason code taxonomy
+
+1. `MALFORMED_LITE_BUNDLE`: input structure is invalid for Lite verification.
+2. `EMPTY_OR_MISSING_RECORDS`: no records are present for chain verification.
+3. `CHAIN_INTEGRITY_FAILED`: chain verification failed.
+4. `MANIFEST_HASH_MISMATCH`: manifest terminal hash does not match final record hash.
+5. `EXPECTED_REDACTION_NON_VERIFIABLE`: likely expected FAIL due to redaction markers.
+6. `UNKNOWN_VERIFICATION_ERROR`: fallback code when no specific category applies.
 
 ## PASS vs FAIL semantics
 
 1. PASS means current integrity checks succeeded on the provided bundle.
 2. FAIL means at least one integrity check failed.
+3. `MALFORMED_LITE_BUNDLE` means input boundary failure, not tamper signal.
+4. `EXPECTED_REDACTION_NON_VERIFIABLE` means FAIL may be expected for share artifacts.
 3. PASS does not prove runtime permission.
 4. FAIL does not by itself prove malicious intent.
+5. FAIL does not by itself prove runtime compromise.
+6. FAIL does not by itself prove policy violation.
 
 ## Common verification misunderstandings
 
@@ -58,4 +75,5 @@ Current output contains:
 
 1. `redactLiteBundle()` intentionally changes payload content for sharing.
 2. Because hashes are not recomputed during redaction, redacted bundles are expected to fail verification.
+3. Verification can include `EXPECTED_REDACTION_NON_VERIFIABLE` when redaction markers are detected.
 3. Verify original bundle first, then generate redacted outputs for distribution.

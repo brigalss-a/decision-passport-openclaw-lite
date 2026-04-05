@@ -258,8 +258,29 @@ new OpenClawPassportMiddlewareLite(wrapper: OpenClawPassportWrapperLite)
 ### `verifyLiteBundle`
 
 ```typescript
-verifyLiteBundle(bundle: LiteBundle): { valid: boolean; status: 'PASS' | 'FAIL'; error?: string }
+type LiteVerificationReasonCode =
+  | 'MALFORMED_LITE_BUNDLE'
+  | 'EMPTY_OR_MISSING_RECORDS'
+  | 'CHAIN_INTEGRITY_FAILED'
+  | 'MANIFEST_HASH_MISMATCH'
+  | 'EXPECTED_REDACTION_NON_VERIFIABLE'
+  | 'UNKNOWN_VERIFICATION_ERROR';
+
+verifyLiteBundle(bundle: unknown): {
+  status: 'PASS' | 'FAIL';
+  summary: string;
+  checks: { name: string; passed: boolean; message?: string }[];
+  reasonCodes: LiteVerificationReasonCode[];
+  redactionAssessment?: {
+    expectedNonVerifiable: boolean;
+    evidence: string[];
+    message: string;
+  };
+  nextSteps: string[];
+}
 ```
+
+`MALFORMED_LITE_BUNDLE` is reserved for input shape problems. Integrity failures use integrity reason codes. Redacted share artifacts can be marked with `EXPECTED_REDACTION_NON_VERIFIABLE` when markers indicate expected non-verifiable output.
 
 ### `renderLiteHtmlReport`
 

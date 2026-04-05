@@ -102,6 +102,7 @@ describe("redactLiteBundle", () => {
       expect(result.verifiable).toBe(false);
       const verification = verifyLiteBundle(result.bundle);
       expect(verification.status).toBe("FAIL");
+      expect(verification.reasonCodes).toContain("EXPECTED_REDACTION_NON_VERIFIABLE");
     });
 
     it("redacts the bundle summary", async () => {
@@ -163,6 +164,8 @@ describe("redactLiteBundle", () => {
 
       expect(result.verifiable).toBe(false);
       expect(result.verificationNote).toContain("Verification will return FAIL");
+      const verification = verifyLiteBundle(result.bundle);
+      expect(verification.reasonCodes).toContain("EXPECTED_REDACTION_NON_VERIFIABLE");
     });
 
     it("does not mutate the original bundle", async () => {

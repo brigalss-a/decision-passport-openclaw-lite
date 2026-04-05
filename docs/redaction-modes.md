@@ -70,6 +70,8 @@ Redaction in `safe-demo` and `public-share` modes changes payload content. Becau
 
 Running `verifyLiteBundle()` on a redacted bundle will return `FAIL`. This is expected.
 
+When redaction markers are detected, verification may include `EXPECTED_REDACTION_NON_VERIFIABLE` in `reasonCodes` to distinguish expected redaction failure from generic integrity tamper outcomes.
+
 The `RedactedBundleResult` object includes:
 
 - `verifiable`: `false` for `safe-demo` and `public-share`

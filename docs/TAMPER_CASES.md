@@ -16,6 +16,7 @@ What happens:
 Expected verification behavior:
 1. `verifyLiteBundle()` returns `FAIL`.
 2. `chain_integrity` check fails.
+3. `reasonCodes` includes `CHAIN_INTEGRITY_FAILED`.
 
 ### Case 2: chain link broken
 
@@ -26,6 +27,7 @@ What happens:
 Expected verification behavior:
 1. `verifyLiteBundle()` returns `FAIL`.
 2. `chain_integrity` check fails with linkage detail.
+3. `reasonCodes` includes `CHAIN_INTEGRITY_FAILED`.
 
 ### Case 3: sequence continuity broken
 
@@ -35,6 +37,7 @@ What happens:
 Expected verification behavior:
 1. `verifyLiteBundle()` returns `FAIL`.
 2. `chain_integrity` check fails with sequence mismatch detail.
+3. `reasonCodes` includes `CHAIN_INTEGRITY_FAILED`.
 
 ### Case 4: manifest mismatch
 
@@ -44,6 +47,7 @@ What happens:
 Expected verification behavior:
 1. `verifyLiteBundle()` returns `FAIL`.
 2. `manifest_chain_hash` check fails.
+3. `reasonCodes` includes `MANIFEST_HASH_MISMATCH`.
 
 ### Case 5: redacted share artifact verification attempt
 
@@ -53,7 +57,8 @@ What happens:
 
 Expected verification behavior:
 1. Verification returns `FAIL`.
-2. This is expected behavior, not necessarily malicious tamper.
+2. `reasonCodes` can include `EXPECTED_REDACTION_NON_VERIFIABLE` when redaction markers are present.
+3. This is expected behavior, not necessarily malicious tamper.
 
 ### Case 6: malformed bundle shape
 
@@ -62,12 +67,14 @@ Natural malformed-input boundary example:
 2. Wrong object shape passed into verification path.
 
 Expected behavior:
-1. Parsing or invocation can fail before a clean PASS or FAIL result.
-2. If verification proceeds with malformed structure, checks can fail.
+1. Verification returns `FAIL` with `reasonCodes` containing `MALFORMED_LITE_BUNDLE`.
+2. This is input-structure failure, not an integrity/tamper verdict.
 
 ## What a reviewer should expect from verification failure
 
 1. Failure indicates integrity checks did not pass for the provided artifact.
+2. Malformed failures indicate boundary/input shape issues.
+3. Expected redaction failures indicate share artifact non-verifiability.
 2. The checks array indicates which check failed.
 3. Context from integration logs can help classify corruption vs workflow issues.
 4. Redacted artifacts are a special expected-fail category.

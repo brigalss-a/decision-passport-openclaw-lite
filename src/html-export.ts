@@ -1,14 +1,9 @@
 import type { LiteBundle, PassportRecord } from "./types.js";
-
-export interface LiteVerificationCheck {
-  name: string;
-  passed: boolean;
-  message?: string;
-}
+import type { LiteVerifierResult } from "./bundle.js";
 
 export interface LiteHtmlReportData {
   bundle: LiteBundle;
-  verification: { status: string; checks: LiteVerificationCheck[] };
+  verification: LiteVerifierResult;
   generatedAt: string;
 }
 
@@ -20,6 +15,34 @@ export function renderLiteHtmlReport(data: LiteHtmlReportData): string {
   const status = verification.status;
   const statusColor = status === "PASS" ? "#22c55e" : "#ef4444";
   const statusLabel = status === "PASS" ? "PASS" : "FAIL";
+  const reasonCodesHtml =
+    verification.reasonCodes.length === 0
+      ? "<li>None</li>"
+      : verification.reasonCodes
+          .map((code) => `<li><code>${escapeHtml(code)}</code></li>`)
+          .join("\n");
+  const nextStepsHtml = verification.nextSteps
+    .map((step) => `<li>${escapeHtml(step)}</li>`)
+    .join("\n");
+  const verifiedScopeHtml = [
+    "Hash-chain integrity across sequence, prev_hash, and record_hash consistency.",
+    "Manifest terminal chain hash match against final record hash.",
+  ]
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("\n");
+  const notVerifiedScopeHtml = [
+    "Runtime authorization, policy correctness, and environment truth.",
+    "Identity provenance without external signature and trust controls.",
+    "Intent, policy violation, or compromise attribution from FAIL alone.",
+  ]
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("\n");
+  const redactionHtml = verification.redactionAssessment
+    ? `<div class="summary-box">
+      <strong>Redaction Assessment:</strong> ${escapeHtml(verification.redactionAssessment.message)}
+      <ul>${verification.redactionAssessment.evidence.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("\n")}</ul>
+    </div>`
+    : "";
 
   const checksHtml = verification.checks
     .map(
@@ -27,7 +50,7 @@ export function renderLiteHtmlReport(data: LiteHtmlReportData): string {
         `<tr>
           <td>${escapeHtml(c.name)}</td>
           <td style="color: ${c.passed ? "#22c55e" : "#ef4444"}">${c.passed ? "PASS" : "FAIL"}</td>
-          <td>${c.message ? escapeHtml(c.message) : "&mdash;"}</td>
+          <td>${c.message ? escapeHtml(c.message) : "n/a"}</td>
         </tr>`,
     )
     .join("\n");
@@ -51,12 +74,14 @@ export function renderLiteHtmlReport(data: LiteHtmlReportData): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OpenClaw Passport Lite &mdash; Verification Report</title>
+<title>OpenClaw Passport Lite - Verification Report</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; background: #0f172a; color: #e2e8f0; }
   h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
   h2 { font-size: 1.125rem; margin: 1.5rem 0 0.75rem; border-bottom: 1px solid #334155; padding-bottom: 0.25rem; }
+  ul { margin: 0.5rem 0 0.5rem 1.25rem; }
+  li { margin-bottom: 0.25rem; }
   .status-card { display: inline-block; padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-size: 1.75rem; font-weight: bold; color: #fff; background: ${statusColor}; margin: 1rem 0; }
   table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
   th, td { text-align: left; padding: 0.375rem 0.75rem; border-bottom: 1px solid #1e293b; font-size: 0.875rem; }
@@ -67,8 +92,13 @@ export function renderLiteHtmlReport(data: LiteHtmlReportData): string {
 </style>
 </head>
 <body>
-  <h1>OpenClaw Passport Lite &mdash; Verification Report</h1>
+  <h1>OpenClaw Passport Lite - Verification Report</h1>
   <div class="status-card">${statusLabel}</div>
+  <div class="summary-box">
+    <strong>Summary:</strong> ${escapeHtml(verification.summary)}
+  </div>
+
+  ${redactionHtml}
 
   <h2>Bundle</h2>
   <table>
@@ -84,6 +114,26 @@ export function renderLiteHtmlReport(data: LiteHtmlReportData): string {
     <thead><tr><th>Check</th><th>Result</th><th>Detail</th></tr></thead>
     <tbody>${checksHtml}</tbody>
   </table>
+
+  <h2>Reason Codes</h2>
+  <ul>${reasonCodesHtml}</ul>
+
+  <h2>Verification Scope</h2>
+  <div class="summary-box">
+    <strong>Verified:</strong>
+    <ul>${verifiedScopeHtml}</ul>
+    <strong>Not Verified:</strong>
+    <ul>${notVerifiedScopeHtml}</ul>
+  </div>
+
+  <h2>Interpretation</h2>
+  <div class="summary-box">
+    FAIL means artifact structure or integrity checks failed for this bundle.
+    FAIL does not by itself prove runtime compromise, malicious behavior, or policy violation.
+  </div>
+
+  <h2>Next Inspection Steps</h2>
+  <ul>${nextStepsHtml}</ul>
 
   <h2>Records</h2>
   <table>

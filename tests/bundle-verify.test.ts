@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { verifyLiteBundle } from "../src/bundle.js";
 import { SessionRecorderLite } from "../src/SessionRecorderLite.js";
 import type { LiteBundle, PassportRecord } from "../src/types.js";
+import { redactLiteBundle } from "../src/redact-lite-bundle.js";
 
 async function buildValidBundle(): Promise<LiteBundle> {
   const recorder = new SessionRecorderLite({
@@ -15,7 +16,7 @@ async function buildValidBundle(): Promise<LiteBundle> {
   return recorder.finalize("test run");
 }
 
-// JSON round-trip strips readonly — intentional tamper helper for tests only
+// JSON round-trip strips readonly; intentional tamper helper for tests only
 function cloneForTamper(bundle: LiteBundle): {
   bundle_version: "1.4-openclaw-lite";
   exported_at_utc: string;
@@ -34,6 +35,8 @@ describe("verifyLiteBundle", () => {
     expect(result.status).toBe("PASS");
     expect(result.checks.length).toBeGreaterThanOrEqual(2);
     expect(result.checks.every((c: { passed: boolean }) => c.passed)).toBe(true);
+    expect(result.reasonCodes).toEqual([]);
+    expect(result.summary).toContain("passed");
   });
 
   it("returns FAIL when chain integrity is broken", async () => {
@@ -47,6 +50,7 @@ describe("verifyLiteBundle", () => {
     const result = verifyLiteBundle(tampered as LiteBundle);
     expect(result.status).toBe("FAIL");
     expect(result.checks.find((c: { name: string }) => c.name === "chain_integrity")?.passed).toBe(false);
+    expect(result.reasonCodes).toContain("CHAIN_INTEGRITY_FAILED");
   });
 
   it("returns FAIL when manifest chain_hash mismatches", async () => {
@@ -56,6 +60,24 @@ describe("verifyLiteBundle", () => {
     const result = verifyLiteBundle(tampered);
     expect(result.status).toBe("FAIL");
     expect(result.checks.find((c: { name: string }) => c.name === "manifest_chain_hash")?.passed).toBe(false);
+    expect(result.reasonCodes).toContain("MANIFEST_HASH_MISMATCH");
+  });
+
+  it("returns FAIL with malformed reason code for invalid shape", async () => {
+    const result = verifyLiteBundle({ manifest: {} });
+    expect(result.status).toBe("FAIL");
+    expect(result.reasonCodes).toEqual(["MALFORMED_LITE_BUNDLE"]);
+    expect(result.checks[0]?.name).toBe("bundle_structure");
+  });
+
+  it("returns FAIL with expected redaction reason for safe-demo bundles", async () => {
+    const bundle = await buildValidBundle();
+    const redacted = redactLiteBundle(bundle, { mode: "safe-demo" });
+    const result = verifyLiteBundle(redacted.bundle);
+
+    expect(result.status).toBe("FAIL");
+    expect(result.reasonCodes).toContain("EXPECTED_REDACTION_NON_VERIFIABLE");
+    expect(result.redactionAssessment?.expectedNonVerifiable).toBe(true);
   });
 });
 

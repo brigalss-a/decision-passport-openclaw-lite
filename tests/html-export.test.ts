@@ -28,6 +28,7 @@ describe("renderLiteHtmlReport", () => {
 
     expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain("PASS");
+    expect(html).toContain("Verification passed. Lite artifact integrity checks succeeded.");
     expect(html).toContain("chain_integrity");
     expect(html).toContain("manifest_chain_hash");
     expect(html).toContain("html-test-chain");
@@ -50,6 +51,8 @@ describe("renderLiteHtmlReport", () => {
 
     expect(html).toContain("FAIL");
     expect(html).toContain("#ef4444");
+    expect(html).toContain("Reason Codes");
+    expect(html).toContain("Interpretation");
   });
 
   it("renders all records in the table", async () => {
@@ -103,7 +106,7 @@ describe("renderLiteHtmlReport", () => {
     });
 
     expect(html).toContain("<!DOCTYPE html>");
-    expect(html).not.toContain("Summary");
+    expect(html).not.toContain("<th>Summary</th>");
   });
 
   it("includes generatedAt in footer", async () => {

@@ -191,6 +191,33 @@ function validateLiteBundleShape(bundle: unknown): string | null {
     if (!isObject(record.payload)) {
       return `Record at index ${i} has invalid payload shape.`;
     }
+
+    const payloadType = record.payload.type;
+    if (payloadType === "checkpoint") {
+      if (typeof record.payload.checkpointType !== "string") {
+        return `Checkpoint record at index ${i} is missing checkpointType.`;
+      }
+
+      const screenshotPolicy = record.payload.screenshotPolicy;
+      if (
+        screenshotPolicy !== "none" &&
+        screenshotPolicy !== "selective" &&
+        screenshotPolicy !== "always"
+      ) {
+        return `Checkpoint record at index ${i} has invalid screenshotPolicy.`;
+      }
+
+      if (typeof record.payload.screenshotCaptured !== "boolean") {
+        return `Checkpoint record at index ${i} has invalid screenshotCaptured flag.`;
+      }
+
+      if (
+        record.payload.screenshotReason !== undefined &&
+        typeof record.payload.screenshotReason !== "string"
+      ) {
+        return `Checkpoint record at index ${i} has invalid screenshotReason type.`;
+      }
+    }
   }
 
   return null;

@@ -121,4 +121,29 @@ describe("renderLiteHtmlReport", () => {
     expect(html).toContain("2026-06-01T00:00:00Z");
     expect(html).toContain("decision-passport-openclaw-lite");
   });
+
+  it("renders checkpoint payload summary with screenshot policy", async () => {
+    const recorder = new SessionRecorderLite({
+      chainId: "checkpoint-html",
+      actorId: "agent-1",
+      purpose: "test",
+      captureMode: "checkpoint",
+      defaultScreenshotPolicy: "selective",
+    });
+
+    await recorder.recordCheckpoint({
+      checkpointType: "send_email",
+      context: { summary: "send email boundary" },
+    });
+
+    const bundle = await recorder.finalize("checkpoint html");
+    const verification = verifyLiteBundle(bundle);
+    const html = renderLiteHtmlReport({
+      bundle,
+      verification,
+      generatedAt: "2026-06-01T00:00:00Z",
+    });
+
+    expect(html).toContain("checkpoint: send_email (policy: selective)");
+  });
 });

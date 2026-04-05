@@ -6,6 +6,7 @@
 
 1. Chain integrity through sequence, prev_hash, and record_hash consistency.
 2. Manifest integrity through manifest chain hash match with terminal record hash.
+3. Checkpoint payload shape for checkpoint records (checkpointType and screenshot metadata types).
 
 ## What verification does not check
 
@@ -13,12 +14,14 @@
 2. Policy compliance or policy correctness.
 3. Environment truth outside recorded checkpoints.
 4. Identity provenance without external signing controls.
+5. Whether screenshot files actually exist or prove visual runtime truth.
 
 ## Inputs to verification
 
 1. A parsed LiteBundle object.
 2. Bundle records with hash fields.
 3. Bundle manifest with chain hash fields.
+4. Optional checkpoint payload metadata fields when checkpoint mode is used.
 
 ## Expected outputs and statuses
 
@@ -50,6 +53,7 @@ Current output contains:
 6. FAIL does not by itself prove malicious intent.
 7. FAIL does not by itself prove runtime compromise.
 8. FAIL does not by itself prove policy violation.
+9. Screenshot policy metadata indicates capture expectations, not screenshot proof.
 
 ## Common verification misunderstandings
 
@@ -70,6 +74,7 @@ Current output contains:
 2. Preserve original bundles and checksums for repeat review.
 3. Treat redacted copies as communication artifacts, not equivalent original evidence.
 4. Pair verification with stronger controls when runtime risk is high.
+5. Treat checkpoint context as bounded reviewer context, not complete environment reconstruction.
 
 ## Redaction and verification
 

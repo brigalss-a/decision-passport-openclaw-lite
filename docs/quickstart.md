@@ -26,17 +26,32 @@ import { OpenClawPassportWrapperLite, verifyLiteBundle } from 'decision-passport
 const passport = new OpenClawPassportWrapperLite({
   chainId: `session-${Date.now()}`,
   actorId: 'my-openclaw-agent',
-  purpose: 'MY_WORKFLOW'
+  purpose: 'MY_WORKFLOW',
+  captureMode: 'checkpoint',
+  defaultScreenshotPolicy: 'selective'
 });
 
 await passport.recordReasoningSummary('Policy approved.', 0.92);
 await passport.recordToolIntent('send_email', { to: 'user@co.com' });
+await passport.recordCheckpoint({
+  checkpointType: 'send_email',
+  context: {
+    summary: 'Outbound message boundary',
+    target: 'user@co.com',
+    actorIntent: 'notify user about order update'
+  },
+  // Screenshot fields are capture-policy metadata only.
+  screenshotCaptured: false,
+  screenshotReason: 'no screenshot hook in this runtime'
+});
 await passport.recordToolResultSummary('send_email', { success: true });
 
 const bundle = await passport.finalize();
 const result = verifyLiteBundle(bundle);
 console.log(result.status); // PASS
 ```
+
+Checkpoint mode captures meaningful transitions with bounded context. It is not a claim of full runtime truth or policy enforcement.
 
 ## 4. Next steps
 

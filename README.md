@@ -31,6 +31,7 @@ Add a portable, append-only audit trail to every OpenClaw agent action. No datab
 ## What this proves
 
 1. Reasoning summaries, tool intents, and tool result summaries are chained into an append-only proof artifact.
+2. Checkpoint mode can record high-value action boundaries with bounded structured context.
 2. Tampering with payloads or chain links is detected by offline verification.
 3. Artifacts can be exported and verified without database dependencies.
 
@@ -47,6 +48,15 @@ Raw logs can be edited and are often too noisy for trust decisions. This repo ca
 ## When checkpoint-based capture matters
 
 Checkpoint-oriented capture is useful when reviewers need evidence of meaningful transitions, such as intent, approval, and result, without recording every low-value event.
+
+Typical checkpoint boundaries include:
+
+1. send_email
+2. delete_file
+3. submit_form
+4. external_post
+5. irreversible_mutation
+6. permission_change
 
 ## When you need stronger infrastructure
 
@@ -141,7 +151,9 @@ const passport = new OpenClawPassportWrapperLite({
   chainId: `session-${Date.now()}`,
   actorId: 'my-openclaw-agent',
   purpose: 'CUSTOMER_EMAIL_RESPONSE',
-  model: 'claude-4'
+  model: 'claude-4',
+  captureMode: 'checkpoint',
+  defaultScreenshotPolicy: 'selective'
 });
 
 // Before the agent acts, record the reasoning
@@ -154,6 +166,21 @@ await passport.recordReasoningSummary(
 await passport.recordToolIntent('send_email', {
   to: 'customer@example.com',
   subject: 'Your order update'
+});
+
+// Record a high-value boundary with bounded context.
+// Screenshot fields are policy metadata, not screenshot proof.
+await passport.recordCheckpoint({
+  checkpointType: 'send_email',
+  context: {
+    summary: 'Outbound customer notification boundary',
+    target: 'customer@example.com',
+    actorIntent: 'notify customer about fulfillment delay',
+    riskHint: 'medium'
+  },
+  screenshotPolicy: 'selective',
+  screenshotCaptured: false,
+  screenshotReason: 'mail client hidden in headless flow'
 });
 
 // After the tool call, record the result
@@ -237,13 +264,43 @@ new OpenClawPassportWrapperLite(config: {
   actorId: string;      // Agent identifier
   purpose: string;      // Human-readable session purpose
   model?: string;       // Optional model name
+  captureMode?: 'event' | 'checkpoint';
+  defaultScreenshotPolicy?: 'none' | 'selective' | 'always';
 })
 
 .recordReasoningSummary(summary: string, confidence: number): Promise<PassportRecord>
 .recordToolIntent(tool: string, payload: Record<string, unknown>): Promise<PassportRecord>
 .recordToolResultSummary(tool: string, result: unknown): Promise<PassportRecord>
+.recordCheckpoint(input: {
+  checkpointType:
+    | 'send_email'
+    | 'delete_file'
+    | 'submit_form'
+    | 'external_post'
+    | 'purchase'
+    | 'irreversible_mutation'
+    | 'permission_change'
+    | 'credential_use'
+    | 'human_approval_boundary'
+    | 'custom';
+  context?: {
+    summary?: string;
+    structuredState?: Record<string, unknown>;
+    inputSummary?: string | Record<string, unknown>;
+    outputSummary?: string | Record<string, unknown>;
+    target?: string;
+    actorIntent?: string;
+    riskHint?: 'low' | 'medium' | 'high' | 'critical';
+    triggerMetadata?: Record<string, unknown>;
+  };
+  screenshotPolicy?: 'none' | 'selective' | 'always';
+  screenshotCaptured?: boolean;
+  screenshotReason?: string;
+}): Promise<PassportRecord>
 .finalize(summary?: string): Promise<LiteBundle>
 ```
+
+Checkpoint mode records meaningful transitions with bounded context. It does not claim full environment capture or runtime enforcement.
 
 ### `OpenClawPassportMiddlewareLite`
 
@@ -313,6 +370,7 @@ Exported bundles are portable JSON:
 {
   "bundle_version": "1.4-openclaw-lite",
   "exported_at_utc": "2026-01-15T14:32:00.000Z",
+  "captureMode": "checkpoint",
   "summary": "Email session completed",
   "passport_records": [
     {
@@ -338,6 +396,8 @@ Exported bundles are portable JSON:
   }
 }
 ```
+
+Checkpoint records in the same bundle use `payload.type = "checkpoint"` and include checkpoint metadata such as `checkpointType`, bounded `context`, and screenshot policy fields.
 
 ---
 
@@ -377,6 +437,8 @@ console.log(result.verifiable); // false
 ```
 
 Three modes: `none` (unchanged copy), `safe-demo` (payload values redacted, structure preserved), `public-share` (payload and actor IDs removed).
+
+For checkpoint records, redaction keeps bounded checkpoint identity metadata (for example `checkpointType` and screenshot policy) so reviewers can still understand what boundary was captured. Redaction still makes the artifact intentionally non-verifiable.
 
 Redacted bundles will fail verification because payload hashes no longer match. Verify the original bundle first, then redact for sharing.
 

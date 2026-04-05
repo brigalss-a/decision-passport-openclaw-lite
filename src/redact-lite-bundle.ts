@@ -108,6 +108,30 @@ export function redactLiteBundle(
  * Preserves actor_id, actor_type, action_type, timestamps, sequence, hashes.
  */
 function redactRecordSafeDemo(record: PassportRecord): PassportRecord {
+  if (isCheckpointPayload(record.payload)) {
+    const payload: Record<string, unknown> = {
+      type: "checkpoint",
+      checkpointType: record.payload.checkpointType,
+      screenshotPolicy: record.payload.screenshotPolicy,
+      screenshotCaptured: record.payload.screenshotCaptured,
+      redaction_marker: REDACTED,
+    };
+
+    if (record.payload.context && isObjectRecord(record.payload.context)) {
+      payload.context = redactPayloadValues(record.payload.context);
+    }
+
+    if (typeof record.payload.screenshotReason === "string") {
+      payload.screenshotReason = REDACTED;
+    }
+
+    return {
+      ...record,
+      payload,
+      metadata: record.metadata ? redactPayloadValues(record.metadata) : undefined,
+    };
+  }
+
   return {
     ...record,
     payload: redactPayloadValues(record.payload),
@@ -121,12 +145,48 @@ function redactRecordSafeDemo(record: PassportRecord): PassportRecord {
  * Replace actor_id with a generic label.
  */
 function redactRecordPublicShare(record: PassportRecord): PassportRecord {
+  if (isCheckpointPayload(record.payload)) {
+    return {
+      ...record,
+      actor_id: REDACTED,
+      payload: {
+        type: "checkpoint",
+        checkpointType: record.payload.checkpointType,
+        screenshotPolicy: record.payload.screenshotPolicy,
+        screenshotCaptured: false,
+        redacted: true,
+      },
+      metadata: undefined,
+    };
+  }
+
   return {
     ...record,
     actor_id: REDACTED,
     payload: { redacted: true },
     metadata: undefined,
   };
+}
+
+function isCheckpointPayload(
+  payload: Record<string, unknown>,
+): payload is {
+  type: "checkpoint";
+  checkpointType: string;
+  screenshotPolicy: string;
+  screenshotCaptured?: boolean;
+  screenshotReason?: string;
+  context?: Record<string, unknown>;
+} {
+  return (
+    payload.type === "checkpoint" &&
+    typeof payload.checkpointType === "string" &&
+    typeof payload.screenshotPolicy === "string"
+  );
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**

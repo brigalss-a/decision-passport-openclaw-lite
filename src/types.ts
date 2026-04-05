@@ -1,7 +1,52 @@
 export type LiteEventType =
   | "reasoning_summary"
   | "tool_intent"
-  | "tool_result";
+  | "tool_result"
+  | "checkpoint";
+
+export type CaptureMode = "event" | "checkpoint";
+
+export type CheckpointType =
+  | "send_email"
+  | "delete_file"
+  | "submit_form"
+  | "external_post"
+  | "purchase"
+  | "irreversible_mutation"
+  | "permission_change"
+  | "credential_use"
+  | "human_approval_boundary"
+  | "custom";
+
+export type ScreenshotPolicy = "none" | "selective" | "always";
+
+export interface CheckpointContext {
+  readonly summary?: string;
+  readonly structuredState?: Readonly<Record<string, unknown>>;
+  readonly inputSummary?: string | Readonly<Record<string, unknown>>;
+  readonly outputSummary?: string | Readonly<Record<string, unknown>>;
+  readonly target?: string;
+  readonly actorIntent?: string;
+  readonly riskHint?: "low" | "medium" | "high" | "critical";
+  readonly triggerMetadata?: Readonly<Record<string, unknown>>;
+}
+
+export interface CheckpointRecordInput {
+  readonly checkpointType: CheckpointType;
+  readonly context?: CheckpointContext;
+  readonly screenshotPolicy?: ScreenshotPolicy;
+  readonly screenshotCaptured?: boolean;
+  readonly screenshotReason?: string;
+}
+
+export interface CheckpointPayload {
+  readonly type: "checkpoint";
+  readonly checkpointType: CheckpointType;
+  readonly context?: CheckpointContext;
+  readonly screenshotPolicy: ScreenshotPolicy;
+  readonly screenshotCaptured?: boolean;
+  readonly screenshotReason?: string;
+}
 
 export type ActorType = "human" | "ai_agent" | "system" | "policy";
 
@@ -36,6 +81,7 @@ export interface ChainManifest {
 export interface LiteBundle {
   readonly bundle_version: "1.4-openclaw-lite";
   readonly exported_at_utc: string;
+  readonly captureMode: CaptureMode;
   readonly summary?: string;
   readonly passport_records: readonly PassportRecord[];
   readonly manifest: ChainManifest;

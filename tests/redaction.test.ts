@@ -207,4 +207,62 @@ describe("redactLiteBundle", () => {
       ).toBe("[REDACTED]");
     });
   });
+
+  describe("checkpoint redaction", () => {
+    async function buildCheckpointBundle(): Promise<LiteBundle> {
+      const recorder = new SessionRecorderLite({
+        chainId: "checkpoint-redact",
+        actorId: "agent-checkpoint",
+        purpose: "checkpoint-redaction-test",
+        captureMode: "checkpoint",
+        defaultScreenshotPolicy: "selective",
+      });
+
+      await recorder.recordCheckpoint({
+        checkpointType: "external_post",
+        context: {
+          summary: "Posting public status",
+          target: "status-page",
+          inputSummary: { visibility: "public" },
+        },
+        screenshotCaptured: true,
+        screenshotReason: "before publish",
+      });
+
+      return recorder.finalize("checkpoint bundle");
+    }
+
+    it("safe-demo preserves checkpoint identity and policy metadata", async () => {
+      const original = await buildCheckpointBundle();
+      const result = redactLiteBundle(original, { mode: "safe-demo" });
+      const payload = result.bundle.passport_records[0].payload as Record<string, unknown>;
+
+      expect(payload.type).toBe("checkpoint");
+      expect(payload.checkpointType).toBe("external_post");
+      expect(payload.screenshotPolicy).toBe("selective");
+      expect(payload.screenshotCaptured).toBe(true);
+      expect(payload.screenshotReason).toBe("[REDACTED]");
+      expect(payload.redaction_marker).toBe("[REDACTED]");
+
+      const verification = verifyLiteBundle(result.bundle);
+      expect(verification.status).toBe("FAIL");
+      expect(verification.reasonCodes).toContain("EXPECTED_REDACTION_NON_VERIFIABLE");
+    });
+
+    it("public-share keeps minimal checkpoint semantics with redacted payload marker", async () => {
+      const original = await buildCheckpointBundle();
+      const result = redactLiteBundle(original, { mode: "public-share" });
+      const payload = result.bundle.passport_records[0].payload as Record<string, unknown>;
+
+      expect(payload.type).toBe("checkpoint");
+      expect(payload.checkpointType).toBe("external_post");
+      expect(payload.screenshotPolicy).toBe("selective");
+      expect(payload.screenshotCaptured).toBe(false);
+      expect(payload.redacted).toBe(true);
+
+      const verification = verifyLiteBundle(result.bundle);
+      expect(verification.status).toBe("FAIL");
+      expect(verification.reasonCodes).toContain("EXPECTED_REDACTION_NON_VERIFIABLE");
+    });
+  });
 });

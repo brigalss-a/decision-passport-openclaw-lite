@@ -70,6 +70,27 @@ Expected behavior:
 1. Verification returns `FAIL` with `reasonCodes` containing `MALFORMED_LITE_BUNDLE`.
 2. This is input-structure failure, not an integrity/tamper verdict.
 
+### Case 7: malformed checkpoint metadata
+
+What happens:
+1. A checkpoint payload has missing or invalid metadata fields (for example invalid screenshot policy value).
+2. Artifact structure no longer matches expected checkpoint payload shape.
+
+Expected behavior:
+1. Verification returns `FAIL` with `reasonCodes` containing `MALFORMED_LITE_BUNDLE`.
+2. This is malformed artifact input, not proof of runtime compromise.
+
+### Case 8: redacted checkpoint artifact verification
+
+What happens:
+1. A checkpoint artifact is redacted for sharing.
+2. Checkpoint identity metadata can remain visible while payload content is altered.
+
+Expected behavior:
+1. Verification returns `FAIL` for the redacted artifact.
+2. `reasonCodes` can include `EXPECTED_REDACTION_NON_VERIFIABLE`.
+3. This indicates expected non-verifiable share output, not by itself malicious tamper.
+
 ## What a reviewer should expect from verification failure
 
 1. Failure indicates integrity checks did not pass for the provided artifact.

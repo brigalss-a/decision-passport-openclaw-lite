@@ -57,4 +57,29 @@ describe("OpenClawPassportWrapperLite", () => {
     expect(bundle.manifest.record_count).toBe(3);
     expect(bundle.summary).toBe("completed test");
   });
+
+  it("records checkpoints through wrapper and persists checkpoint capture mode", async () => {
+    const wrapper = new OpenClawPassportWrapperLite({
+      ...config,
+      defaultScreenshotPolicy: "selective",
+    });
+
+    const checkpoint = await wrapper.recordCheckpoint({
+      checkpointType: "delete_file",
+      context: {
+        summary: "Deleting report archive",
+        target: "/tmp/archive.zip",
+      },
+    });
+
+    expect(checkpoint.payload).toMatchObject({
+      type: "checkpoint",
+      checkpointType: "delete_file",
+      screenshotPolicy: "selective",
+      screenshotCaptured: false,
+    });
+
+    const bundle = await wrapper.finalize("checkpoint test");
+    expect(bundle.captureMode).toBe("checkpoint");
+  });
 });

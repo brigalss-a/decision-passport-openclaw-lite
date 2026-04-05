@@ -148,6 +148,10 @@ export function renderLiteHtmlReport(data: LiteHtmlReportData): string {
 
 function formatPayloadSummary(record: PassportRecord): string {
   const p = record.payload;
+  if (p.type === "checkpoint" && typeof p.checkpointType === "string") {
+    const policy = typeof p.screenshotPolicy === "string" ? p.screenshotPolicy : "none";
+    return `checkpoint: ${p.checkpointType} (policy: ${policy})`;
+  }
   if (p.type === "reasoning_summary" && typeof p.summary === "string") {
     return p.summary.length > 60 ? p.summary.slice(0, 57) + "..." : p.summary;
   }

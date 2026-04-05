@@ -16,11 +16,25 @@ async function main() {
     chainId: `file-chain-${Date.now()}`,
     actorId: "openclaw-agent-file",
     purpose: "FILE_OP_DEMO",
-    model: "claude-4"
+    model: "claude-4",
+    captureMode: "checkpoint",
+    defaultScreenshotPolicy: "selective",
   });
 
   await wrapper.recordReasoningSummary("The agent is preparing a file operation.", 0.84);
   await wrapper.recordToolIntent("write_file", { path: "/tmp/demo.txt" });
+  await wrapper.recordCheckpoint({
+    checkpointType: "irreversible_mutation",
+    context: {
+      summary: "File overwrite boundary",
+      target: "/tmp/demo.txt",
+      actorIntent: "persist generated output",
+      inputSummary: { operation: "write_file" },
+      riskHint: "high",
+    },
+    screenshotCaptured: false,
+    screenshotReason: "CLI demo without screenshot integration",
+  });
   await wrapper.recordToolResultSummary("write_file", { ok: true, path: "/tmp/demo.txt" });
 
   const bundle = await wrapper.finalize("File operation demo completed");
@@ -34,6 +48,7 @@ async function main() {
 
   const summaryJson = {
     generatedAt,
+    captureMode: bundle.captureMode,
     status: verification.status,
     records: bundle.passport_records.length,
     checks: verification.checks.length,
@@ -42,7 +57,7 @@ async function main() {
   writeFileSync(join(artifactsDir, "passport-lite-file-op-summary.json"), JSON.stringify(summaryJson, null, 2));
 
   printBlock("");
-  printBlock(term.heading(" OpenClaw Passport Lite — File-Op Demo Summary"));
+  printBlock(term.heading(" OpenClaw Passport Lite - File-Op Demo Summary"));
   printBlock(
     term.list([
       term.kv("Session", bundle.manifest.chain_id),

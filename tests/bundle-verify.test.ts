@@ -79,5 +79,55 @@ describe("verifyLiteBundle", () => {
     expect(result.reasonCodes).toContain("EXPECTED_REDACTION_NON_VERIFIABLE");
     expect(result.redactionAssessment?.expectedNonVerifiable).toBe(true);
   });
+
+  it("returns PASS for a valid checkpoint-mode bundle", async () => {
+    const recorder = new SessionRecorderLite({
+      chainId: "checkpoint-chain",
+      actorId: "agent-1",
+      purpose: "checkpoint-test",
+      captureMode: "checkpoint",
+      defaultScreenshotPolicy: "selective",
+    });
+
+    await recorder.recordCheckpoint({
+      checkpointType: "send_email",
+      context: {
+        summary: "Send update email",
+        target: "customer@example.com",
+      },
+    });
+
+    const bundle = await recorder.finalize("checkpoint run");
+    const result = verifyLiteBundle(bundle);
+
+    expect(bundle.captureMode).toBe("checkpoint");
+    expect(result.status).toBe("PASS");
+    expect(result.reasonCodes).toEqual([]);
+  });
+
+  it("returns malformed FAIL for invalid checkpoint screenshot policy", async () => {
+    const recorder = new SessionRecorderLite({
+      chainId: "checkpoint-chain",
+      actorId: "agent-1",
+      purpose: "checkpoint-test",
+      captureMode: "checkpoint",
+    });
+
+    await recorder.recordCheckpoint({ checkpointType: "submit_form" });
+    const clean = await recorder.finalize("checkpoint run");
+    const tampered = cloneForTamper(clean);
+    tampered.passport_records[0] = {
+      ...tampered.passport_records[0],
+      payload: {
+        ...(tampered.passport_records[0].payload as Record<string, unknown>),
+        screenshotPolicy: "sometimes",
+      },
+    };
+
+    const result = verifyLiteBundle(tampered as LiteBundle);
+    expect(result.status).toBe("FAIL");
+    expect(result.reasonCodes).toEqual(["MALFORMED_LITE_BUNDLE"]);
+    expect(result.checks[0]?.message).toContain("screenshotPolicy");
+  });
 });
 

@@ -26,7 +26,9 @@ async function main() {
     chainId: `demo-chain-${Date.now()}`,
     actorId: "openclaw-agent-01",
     purpose: "EMAIL_DEMO",
-    model: "claude-4"
+    model: "claude-4",
+    captureMode: "checkpoint",
+    defaultScreenshotPolicy: "selective",
   });
 
   const middleware = new OpenClawPassportMiddlewareLite(wrapper);
@@ -45,6 +47,27 @@ async function main() {
     await sendEmail(toolCall.payload as { to: string; subject: string; body: string })
   );
 
+  await wrapper.recordCheckpoint({
+    checkpointType: "send_email",
+    context: {
+      summary: "Outbound email boundary",
+      target: "client@example.com",
+      actorIntent: "deliver confirmation email",
+      inputSummary: {
+        subject: "Confirmation",
+      },
+      outputSummary: {
+        success: true,
+      },
+      riskHint: "medium",
+      triggerMetadata: {
+        channel: "email",
+      },
+    },
+    screenshotCaptured: false,
+    screenshotReason: "headless demo runtime",
+  });
+
   const bundle = await middleware.finalize("Email demo completed");
   const verification = verifyLiteBundle(bundle);
 
@@ -57,6 +80,7 @@ async function main() {
 
   const summaryJson = {
     generatedAt,
+    captureMode: bundle.captureMode,
     status: verification.status,
     records: bundle.passport_records.length,
     checks: verification.checks.length,
@@ -66,7 +90,7 @@ async function main() {
 
   // -- Redacted share artifacts --
   // safe-demo: preserves structure, redacts payload values.
-  // Verification will FAIL on redacted bundles — this is expected and documented.
+  // Verification will FAIL on redacted bundles; this is expected and documented.
   const safeDemoResult = redactLiteBundle(bundle, { mode: "safe-demo" });
   const safeDemoVerification = verifyLiteBundle(safeDemoResult.bundle);
   const safeDemoHtml = renderLiteHtmlReport({ bundle: safeDemoResult.bundle, verification: safeDemoVerification, generatedAt });
@@ -92,7 +116,7 @@ async function main() {
   }, null, 2));
 
   printBlock("");
-  printBlock(term.heading(" OpenClaw Passport Lite — Email Demo Summary"));
+  printBlock(term.heading(" OpenClaw Passport Lite - Email Demo Summary"));
   printBlock(
     term.list([
       term.kv("Session", bundle.manifest.chain_id),

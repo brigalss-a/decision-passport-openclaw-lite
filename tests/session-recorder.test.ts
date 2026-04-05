@@ -79,4 +79,57 @@ describe("SessionRecorderLite", () => {
     const bundle = await recorder.finalize();
     expect(bundle.summary).toBeUndefined();
   });
+
+  it("uses event capture mode by default", async () => {
+    const recorder = new SessionRecorderLite(config);
+    await recorder.record("tool_intent", { tool: "sendEmail" });
+    const bundle = await recorder.finalize("event flow");
+
+    expect(bundle.captureMode).toBe("event");
+  });
+
+  it("records checkpoint with default screenshot policy and normalized metadata", async () => {
+    const recorder = new SessionRecorderLite({
+      ...config,
+      defaultScreenshotPolicy: "selective",
+    });
+
+    const record = await recorder.recordCheckpoint({
+      checkpointType: "send_email",
+      context: {
+        summary: "Send to customer",
+        target: "customer@example.com",
+      },
+      screenshotReason: "   ",
+    });
+
+    expect(record.payload).toMatchObject({
+      type: "checkpoint",
+      checkpointType: "send_email",
+      screenshotPolicy: "selective",
+      screenshotCaptured: false,
+    });
+    expect(record.payload).not.toHaveProperty("screenshotReason");
+
+    const bundle = await recorder.finalize("checkpoint flow");
+    expect(bundle.captureMode).toBe("checkpoint");
+  });
+
+  it("records explicit screenshot metadata on checkpoints", async () => {
+    const recorder = new SessionRecorderLite(config);
+    const record = await recorder.recordCheckpoint({
+      checkpointType: "submit_form",
+      screenshotPolicy: "always",
+      screenshotCaptured: true,
+      screenshotReason: "  user confirmation screen  ",
+    });
+
+    expect(record.payload).toMatchObject({
+      type: "checkpoint",
+      checkpointType: "submit_form",
+      screenshotPolicy: "always",
+      screenshotCaptured: true,
+      screenshotReason: "user confirmation screen",
+    });
+  });
 });

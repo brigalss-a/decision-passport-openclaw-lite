@@ -28,6 +28,8 @@ Use when you need a copy but do not need redaction.
 
 Replaces payload leaf values with `[REDACTED]` while preserving payload structure (keys are kept). Redacts the bundle summary if present. Redacts metadata values if metadata is present.
 
+For checkpoint records, `safe-demo` preserves checkpoint identity and capture-policy fields (`type`, `checkpointType`, `screenshotPolicy`, `screenshotCaptured`) while redacting checkpoint context and screenshot reason text.
+
 | Aspect | Behaviour |
 | --- | --- |
 | Payload keys | Preserved |
@@ -62,6 +64,8 @@ Aggressively removes payload content and metadata. Replaces actor IDs with `[RED
 
 Use for public sharing, external documentation, or any context where payload content and actor identities must not be exposed.
 
+For checkpoint records, `public-share` keeps minimal checkpoint semantics (`type`, `checkpointType`, `screenshotPolicy`) so reviewers can still understand what boundary category was captured, while payload content remains redacted.
+
 ---
 
 ## Verification after redaction
@@ -78,6 +82,8 @@ The `RedactedBundleResult` object includes:
 - `verificationNote`: explains exactly what changed and why verification fails
 
 If you need to prove that the original bundle was valid, verify it before redacting.
+
+Checkpoint metadata that survives redaction should be interpreted as bounded context labels, not proof of full runtime state.
 
 ---
 

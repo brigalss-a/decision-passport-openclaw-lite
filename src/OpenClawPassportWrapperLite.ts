@@ -1,6 +1,7 @@
 import { SessionRecorderLite } from "./SessionRecorderLite.js";
 import { summarizeResult } from "./utils/summarize-result.js";
 import { mapToolIntent } from "./utils/map-tool-intent.js";
+import type { CaptureMode, CheckpointRecordInput, ScreenshotPolicy } from "./types.js";
 
 export class OpenClawPassportWrapperLite {
   private readonly recorder: SessionRecorderLite;
@@ -10,6 +11,8 @@ export class OpenClawPassportWrapperLite {
     actorId: string;
     purpose: string;
     model?: string;
+    captureMode?: CaptureMode;
+    defaultScreenshotPolicy?: ScreenshotPolicy;
   }) {
     this.recorder = new SessionRecorderLite(config);
   }
@@ -30,6 +33,10 @@ export class OpenClawPassportWrapperLite {
       tool,
       result_summary: summarizeResult(result)
     });
+  }
+
+  async recordCheckpoint(input: CheckpointRecordInput) {
+    return this.recorder.recordCheckpoint(input);
   }
 
   async finalize(summary?: string) {

@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "pnpm run typecheck",
     "demo": "tsx scripts/run-demo.ts",
     "test": "vitest run",
     "checksums": "tsx scripts/generate-checksums.ts"

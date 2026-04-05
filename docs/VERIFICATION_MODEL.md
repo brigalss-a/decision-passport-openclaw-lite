@@ -46,10 +46,10 @@ Current output contains:
 2. FAIL means at least one integrity check failed.
 3. `MALFORMED_LITE_BUNDLE` means input boundary failure, not tamper signal.
 4. `EXPECTED_REDACTION_NON_VERIFIABLE` means FAIL may be expected for share artifacts.
-3. PASS does not prove runtime permission.
-4. FAIL does not by itself prove malicious intent.
-5. FAIL does not by itself prove runtime compromise.
-6. FAIL does not by itself prove policy violation.
+5. PASS does not prove runtime permission.
+6. FAIL does not by itself prove malicious intent.
+7. FAIL does not by itself prove runtime compromise.
+8. FAIL does not by itself prove policy violation.
 
 ## Common verification misunderstandings
 
@@ -76,4 +76,4 @@ Current output contains:
 1. `redactLiteBundle()` intentionally changes payload content for sharing.
 2. Because hashes are not recomputed during redaction, redacted bundles are expected to fail verification.
 3. Verification can include `EXPECTED_REDACTION_NON_VERIFIABLE` when redaction markers are detected.
-3. Verify original bundle first, then generate redacted outputs for distribution.
+4. Verify original bundle first, then generate redacted outputs for distribution.

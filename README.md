@@ -287,7 +287,18 @@ verifyLiteBundle(bundle: unknown): {
 ```typescript
 renderLiteHtmlReport(data: {
   bundle: LiteBundle;
-  verification: { status: string; checks: { name: string; passed: boolean; message?: string }[] };
+  verification: {
+    status: 'PASS' | 'FAIL';
+    summary: string;
+    checks: { name: string; passed: boolean; message?: string }[];
+    reasonCodes: LiteVerificationReasonCode[];
+    redactionAssessment?: {
+      expectedNonVerifiable: boolean;
+      evidence: string[];
+      message: string;
+    };
+    nextSteps: string[];
+  };
   generatedAt: string;
 }): string   // self-contained HTML document
 ```
@@ -349,6 +360,7 @@ fs.writeFileSync('report.html', html);
 ```
 
 The demo writes reports automatically to `artifacts/passport-lite-report.html`.
+The demo summary files in `artifacts/passport-lite-summary*.json` are compact rollups for quick scanning and do not include the full verification payload fields.
 
 ---
 

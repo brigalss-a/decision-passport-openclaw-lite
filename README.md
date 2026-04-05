@@ -368,6 +368,13 @@ Full details: [docs/append-only-guarantees.md](docs/append-only-guarantees.md)
 
 - [Release verification](docs/release-verification.md): how to verify a published release locally
 
+### Trust model docs
+
+- [Boundaries](docs/BOUNDARIES.md): scope, non-goals, and trust boundaries for Lite usage
+- [Threat model](docs/THREAT_MODEL.md): addressed threats, assumptions, and residual risk
+- [Verification model](docs/VERIFICATION_MODEL.md): PASS and FAIL semantics and safe interpretation
+- [Tamper cases](docs/TAMPER_CASES.md): concrete failure patterns and reviewer investigation flow
+
 ---
 
 ## Examples
